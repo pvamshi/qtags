@@ -11,11 +11,7 @@
   "name": "qtags",
   "version": "1.0.0",
   "description": "Query tags",
-  "exports": "./src/index.ts",
-  "engines": {
-    "node": ">=12"
-  },
-  "type": "module",
+  "main": "index.ts",
   "license": "MIT",
   "dependencies": {
     "@types/lokijs": "^1.5.4",

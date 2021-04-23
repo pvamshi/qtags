@@ -4,6 +4,8 @@ export interface Position {
   end: { line: number; column: number; offset: number };
 }
 export interface BaseNode {
+  tags?: ID[];
+  queries?: ID;
   position: Position;
   children?: ID[];
 }
@@ -51,8 +53,8 @@ export interface Tag {
 
 export interface Query {
   filePath: string;
-  includeTags: string[];
-  excludeTags: string[];
+  include: string[];
+  exclude: string[];
   results: ID[];
   node: ID;
 }
