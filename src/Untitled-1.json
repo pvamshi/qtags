@@ -1,0 +1,126 @@
+{
+  "type": "root",
+  "children": [
+    {
+      "type": "list",
+      "ordered": false,
+      "start": null,
+      "spread": false,
+      "children": [
+        {
+          "type": "listItem",
+          "spread": false,
+          "checked": false,
+          "children": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "simple ",
+                  "position": {
+                    "start": { "line": 1, "column": 7, "offset": 6 },
+                    "end": { "line": 1, "column": 14, "offset": 13 }
+                  }
+                },
+                {
+                  "type": "strong",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "text",
+                      "position": {
+                        "start": { "line": 1, "column": 16, "offset": 15 },
+                        "end": { "line": 1, "column": 20, "offset": 19 }
+                      }
+                    }
+                  ],
+                  "position": {
+                    "start": { "line": 1, "column": 14, "offset": 13 },
+                    "end": { "line": 1, "column": 22, "offset": 21 }
+                  }
+                },
+                {
+                  "type": "text",
+                  "value": " #tag",
+                  "position": {
+                    "start": { "line": 1, "column": 22, "offset": 21 },
+                    "end": { "line": 1, "column": 27, "offset": 26 }
+                  }
+                }
+              ],
+              "position": {
+                "start": { "line": 1, "column": 7, "offset": 6 },
+                "end": { "line": 1, "column": 27, "offset": 26 }
+              },
+              "tags": ["tag"],
+              "queries": { "include": [], "exclude": [] }
+            }
+          ],
+          "position": {
+            "start": { "line": 1, "column": 1, "offset": 0 },
+            "end": { "line": 1, "column": 27, "offset": 26 }
+          }
+        }
+      ],
+      "position": { "start": { "line": 1, "column": 1, "offset": 0 }, "end": { "line": 1, "column": 27, "offset": 26 } }
+    },
+    {
+      "type": "paragraph",
+      "children": [
+        {
+          "type": "text",
+          "value": "query: +tag -tag2 abc-def",
+          "position": {
+            "start": { "line": 2, "column": 1, "offset": 27 },
+            "end": { "line": 2, "column": 26, "offset": 52 }
+          }
+        }
+      ],
+      "position": {
+        "start": { "line": 2, "column": 1, "offset": 27 },
+        "end": { "line": 2, "column": 26, "offset": 52 }
+      },
+      "tags": [],
+      "queries": { "include": ["tag"], "exclude": ["tag2"] }
+    },
+    {
+      "type": "heading",
+      "depth": 1,
+      "children": [
+        {
+          "type": "text",
+          "value": "hea +results",
+          "position": {
+            "start": { "line": 4, "column": 3, "offset": 56 },
+            "end": { "line": 4, "column": 15, "offset": 68 }
+          }
+        }
+      ],
+      "position": {
+        "start": { "line": 4, "column": 1, "offset": 54 },
+        "end": { "line": 4, "column": 15, "offset": 68 }
+      }
+    },
+    {
+      "type": "paragraph",
+      "children": [
+        {
+          "type": "text",
+          "value": "Some simple text #tag",
+          "position": {
+            "start": { "line": 6, "column": 1, "offset": 70 },
+            "end": { "line": 6, "column": 22, "offset": 91 }
+          }
+        }
+      ],
+      "position": {
+        "start": { "line": 6, "column": 1, "offset": 70 },
+        "end": { "line": 6, "column": 25, "offset": 94 }
+      },
+      "tags": ["tag"],
+      "queries": { "include": [], "exclude": [] }
+    }
+  ],
+  "position": { "start": { "line": 1, "column": 1, "offset": 0 }, "end": { "line": 6, "column": 25, "offset": 94 } }
+}

@@ -1,0 +1,179 @@
+{
+  "filename": "qtags.db",
+  "collections": [
+    {
+      "name": "nodes",
+      "data": [
+        {
+          "type": "text",
+          "value": "[ ] simple text #tag",
+          "position": {
+            "start": { "line": 1, "column": 3, "offset": 2 },
+            "end": { "line": 1, "column": 23, "offset": 22 }
+          },
+          "meta": { "revision": 1, "created": 1619041859029, "version": 0, "updated": 1619041859029 },
+          "$loki": 1,
+          "tags": [1]
+        },
+        {
+          "type": "paragraph",
+          "children": [1],
+          "position": {
+            "start": { "line": 1, "column": 3, "offset": 2 },
+            "end": { "line": 1, "column": 23, "offset": 22 }
+          },
+          "meta": { "revision": 0, "created": 1619041859029, "version": 0 },
+          "$loki": 2
+        },
+        {
+          "type": "listItem",
+          "spread": false,
+          "checked": null,
+          "children": [2],
+          "position": {
+            "start": { "line": 1, "column": 1, "offset": 0 },
+            "end": { "line": 1, "column": 23, "offset": 22 }
+          },
+          "meta": { "revision": 0, "created": 1619041859029, "version": 0 },
+          "$loki": 3
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "start": null,
+          "spread": false,
+          "children": [3],
+          "position": {
+            "start": { "line": 1, "column": 1, "offset": 0 },
+            "end": { "line": 1, "column": 23, "offset": 22 }
+          },
+          "meta": { "revision": 0, "created": 1619041859029, "version": 0 },
+          "$loki": 4
+        },
+        {
+          "type": "root",
+          "children": [4],
+          "position": {
+            "start": { "line": 1, "column": 1, "offset": 0 },
+            "end": { "line": 1, "column": 23, "offset": 22 }
+          },
+          "filePath": "file1.md",
+          "meta": { "revision": 0, "created": 1619041859029, "version": 0 },
+          "$loki": 5
+        }
+      ],
+      "idIndex": [1, 2, 3, 4, 5],
+      "binaryIndices": {},
+      "constraints": null,
+      "uniqueNames": [],
+      "transforms": {},
+      "objType": "nodes",
+      "dirty": false,
+      "cachedIndex": null,
+      "cachedBinaryIndex": null,
+      "cachedData": null,
+      "adaptiveBinaryIndices": true,
+      "transactional": false,
+      "cloneObjects": false,
+      "cloneMethod": "parse-stringify",
+      "asyncListeners": false,
+      "disableMeta": false,
+      "disableChangesApi": true,
+      "disableDeltaChangesApi": true,
+      "autoupdate": false,
+      "serializableIndices": true,
+      "disableFreeze": true,
+      "ttl": null,
+      "maxId": 5,
+      "DynamicViews": [],
+      "events": {
+        "insert": [],
+        "update": [],
+        "pre-insert": [],
+        "pre-update": [],
+        "close": [],
+        "flushbuffer": [],
+        "error": [],
+        "delete": [null],
+        "warning": [null]
+      },
+      "changes": [],
+      "dirtyIds": []
+    },
+    {
+      "name": "tags",
+      "data": [
+        {
+          "name": "tag",
+          "filePath": "file1.md",
+          "references": [1],
+          "queries": [],
+          "meta": { "revision": 0, "created": 1619041859029, "version": 0 },
+          "$loki": 1
+        }
+      ],
+      "idIndex": null,
+      "binaryIndices": {
+        "name": { "name": "name", "dirty": false, "values": [0] },
+        "filePath": { "name": "filePath", "dirty": false, "values": [0] }
+      },
+      "constraints": null,
+      "uniqueNames": [],
+      "transforms": {},
+      "objType": "tags",
+      "dirty": false,
+      "cachedIndex": null,
+      "cachedBinaryIndex": null,
+      "cachedData": null,
+      "adaptiveBinaryIndices": true,
+      "transactional": false,
+      "cloneObjects": false,
+      "cloneMethod": "parse-stringify",
+      "asyncListeners": false,
+      "disableMeta": false,
+      "disableChangesApi": true,
+      "disableDeltaChangesApi": true,
+      "autoupdate": false,
+      "serializableIndices": true,
+      "disableFreeze": true,
+      "ttl": null,
+      "maxId": 1,
+      "DynamicViews": [],
+      "events": {
+        "insert": [],
+        "update": [],
+        "pre-insert": [],
+        "pre-update": [],
+        "close": [],
+        "flushbuffer": [],
+        "error": [],
+        "delete": [null],
+        "warning": [null]
+      },
+      "changes": [],
+      "dirtyIds": []
+    }
+  ],
+  "databaseVersion": 1.5,
+  "engineVersion": 1.5,
+  "autosave": true,
+  "autosaveInterval": 4000,
+  "autosaveHandle": null,
+  "throttledSaves": true,
+  "options": {
+    "autoload": true,
+    "autosave": true,
+    "autosaveInterval": 4000,
+    "serializationMethod": "normal",
+    "destructureDelimiter": "$<\n",
+    "recursiveWait": true,
+    "recursiveWaitLimit": false,
+    "recursiveWaitLimitDuration": 2000,
+    "started": 1619041859020
+  },
+  "persistenceMethod": "fs",
+  "persistenceAdapter": null,
+  "verbose": false,
+  "events": { "init": [null], "loaded": [], "flushChanges": [], "close": [], "changes": [], "warning": [] },
+  "ENV": "NODEJS"
+}
