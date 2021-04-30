@@ -4,7 +4,7 @@ import { Query, ElementNode, ElementNodeDoc, File, ID, Tag } from './types';
 
 export interface DB {
   getNode(id: ID): ElementNodeDoc;
-  addNode<T>(node: T & { children?: ID[] }): T;
+  addNode(node: any): any;
   deleteNode(nodeId: ID): void;
   updateNode(node: ElementNodeDoc): void;
   getFile(filePath: string): (File & LokiObj) | undefined;
@@ -16,7 +16,7 @@ export interface DB {
   tags: Collection<Tag>;
   nodes: Collection<ElementNode>;
   deleteAll(filePath: string): void;
-  getTagByName(tagName: string): (Tag & LokiObj) | null;
+  getTagByName(tagName: string, filePath?: string): (Tag & LokiObj) | null;
   updateTag(tag: Tag & LokiObj): void;
 }
 
@@ -129,8 +129,8 @@ function getQuery(queries: Collection<Query>) {
 }
 
 function getTagByName(tags: Collection<Tag>) {
-  return (tagName: string): (Tag & LokiObj) | null => {
-    return tags.findOne({ name: tagName });
+  return (tagName: string, filePath: string): (Tag & LokiObj) | null => {
+    return filePath ? tags.findOne({ name: tagName, filePath }) : tags.findOne({ name: tagName });
   };
 }
 

@@ -1,12 +1,10 @@
 import { DB } from './db';
-import { ElementNode, ElementNodeDoc, ID, Text } from './types';
 import { addNode } from './node';
 
-type RawNode = ElementNode & { children: any[] };
 function plugin({ filePath, db }: { filePath: string; db: DB }) {
   return (tree: any) => {
     db.deleteAll(filePath); // can we somehow just update
-    addNode(tree, filePath, db);
+    addNode(tree, filePath, null, db);
     // console.log(db.nodes.data);
   };
 }

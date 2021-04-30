@@ -22,7 +22,7 @@ export class Tag {
       this.references = existingTag.references;
       this.queries = existingTag.queries;
     } else {
-      collection.insertOne({ name, filePath, references: this.references, queries: this.queries }) as Tag & LokiObj;
+      // collection.insertOne({ name, filePath, references: this.references, queries: this.queries }) as Tag & LokiObj;
     }
   }
   public save() {
