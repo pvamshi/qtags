@@ -17,6 +17,7 @@ export interface DB {
   nodes: Collection<ElementNode>;
   deleteAll(filePath: string): void;
   getTagByName(tagName: string, filePath?: string): (Tag & LokiObj) | null;
+  getAllTagByName(tagName: string): (Tag & LokiObj)[] | null;
   updateTag(tag: Tag & LokiObj): void;
 }
 
@@ -62,6 +63,7 @@ export async function getDb(): Promise<DB> {
     getQuery: getQuery(queries),
     updateTag: updateTag(tags),
     getTagByName: getTagByName(tags),
+    getAllTagByName: getAllTagByName(tags),
   };
 }
 function deleteAll(nodes: Collection<any>, tags: Collection<Tag>, queries: Collection<Query>) {
@@ -134,6 +136,11 @@ function getTagByName(tags: Collection<Tag>) {
   };
 }
 
+function getAllTagByName(tags: Collection<Tag>) {
+  return (tagName: string): (Tag & LokiObj)[] | null => {
+    return tags.find({ name: tagName });
+  };
+}
 function updateTag(tags: Collection<Tag>) {
   return (tag: Tag & LokiObj) => {
     tags.update(tag);

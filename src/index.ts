@@ -1,12 +1,10 @@
+import remark from 'remark';
 import gfm from 'remark-gfm';
-import remark, { parse, stringify } from 'remark';
-var markdownCompile = require('remark-stringify');
-import { DB, getDb } from './db';
-import flatFilter from 'unist-util-flat-filter';
-import { ID, Query } from './types';
-import { notEqual } from 'node:assert';
-import visit from 'unist-util-visit';
 
+import { DB, getDb } from './db';
+import { ID, Query } from './types';
+
+var markdownCompile = require('remark-stringify');
 /* 
 // TODO 
 - [x] add queries 
@@ -18,20 +16,20 @@ import visit from 'unist-util-visit';
 - [-] check if any other file needs to be updated
 - [ ] Run this script when a file is open
 - [x] convert back to markdown
-- [ ] result should have square box at the end
+- [x] result should have square box at the end
 - [ ] search in child nodes for AND condition
-- [ ] query by AND with excludetags
-- [ ] query , with exclude tag 
+- [x] query by AND with excludetags
+- [x] query , with exclude tag 
 - [ ] query by OR
 - [-] results should of siblings or children. It should behave differently in lists and other way in paragraph
-- [ ] children in db should be childrenIds, and remove positions and add parent
-- [ ] if query result is a list item, then show list item in the result
-- [ ] will paragraph ever get children more than one ? 
+- [x] children in db should be childrenIds, and remove positions and add parent
+- [x] if query result is a list item, then show list item in the result
+- [x] will paragraph ever get children more than one ? 
 
 - problems 
   1. [x] one result instead of two 
   2. [x] not added as child to the result 
-  3. [ ] tag should not be saved with filepath
+  3. [x] tag should not be saved with filepath
 
 - the new flow should be: 
   - read each node
@@ -46,14 +44,18 @@ import visit from 'unist-util-visit';
 
 const testText = `
 
-- simple paragraph #tag
++ smple paragraph #tag
   - some other simple
   - some second child
-    - another child #tag2
+    - another child #tag #tag2
 
-a paragraph #tag
-- simple query +tag
+a paragraph #tag 
+
+- simple query +tag +tag2
   - existing data
+  - simple paragraph #tag𖥔
+      - another child #tag2
+  - a paragraph #tag𖥔
 
 `;
 const big = `- [ ] simple **text**  for #tag
@@ -150,18 +152,58 @@ function getChildren(node: any, db: DB) {
     });
   }
 }
-
+/**
+ * [x] Add result indicator at the end of each node text
+ * [ ] Handle all complex scenarios
+ * [ ] search children also
+ */
 function getResults(query: Query, db: DB): any[] {
-  // get it working for simple query first, to check other flow is fine
-  //assuming there is only one tag always in include
   if (query?.include.length > 0) {
-    const tag = db.getTagByName(query.include[0]);
-    const results = tag?.references.map((nodeId: ID) => db.getNode(nodeId));
-    results?.forEach((node) => getChildren(node, db));
+    const tagName = query.include[0];
+    const restOfTags = query.include.slice(1);
+    const tags = db.getAllTagByName(tagName);
+    const results =
+      tags?.flatMap((tag) =>
+        tag.references
+          .map((nodeId: ID) => db.getNode(nodeId))
+          .filter((node: any) => !node.tags.some((tag: string) => query.exclude.includes(tag)))
+          .filter((node: any) => restOfTags.every((tag) => node.tags.includes(tag))),
+      ) || [];
+    results.forEach((node) => {
+      getChildren(node, db);
+      let para: any;
+      if (node.type === 'paragraph') {
+        para = node;
+      } else if (node.type === 'listItem') {
+        para = node.children[0];
+      }
+      if (para) {
+        para.children.push({ type: 'text', value: '𖥔' });
+      }
+    });
     return results || [];
   }
   return [];
 }
+
+function queryResults(query: Query, db: DB): any[] {
+  if (query.include.length === 0) {
+    return [];
+  }
+  const tagName = query.include[0];
+  const restOfTags = query.include.slice(1);
+  const tags = db.getAllTagByName(tagName);
+  return (
+    tags?.flatMap((tag) =>
+      tag.references
+        .map((nodeId: ID) => db.getNode(nodeId))
+        .filter((node: any) => !node.tags.some((tag: string) => query.exclude.includes(tag)))
+        .filter((node: any) => restOfTags.every((tag) => node.tags.includes(tag))),
+    ) || []
+  );
+}
+
+function queryChildren(query: Query, nodes: any[], results: any[], db: DB) {}
 
 type NodeData = { tags?: string[]; ignore?: boolean; query?: { include: string[]; exclude: string[] } } | undefined;
 
@@ -193,8 +235,8 @@ function visitNode(
     addedNode = saveNode(node, filePath, parentId, db);
     savedNodeId = addedNode.$loki;
     if (nodeData?.tags) {
-      const tagIds = saveTag(nodeData.tags, addedNode.$loki, filePath, db);
-      addedNode.tags = tagIds;
+      saveTag(nodeData.tags, addedNode.$loki, filePath, db);
+      addedNode.tags = nodeData.tags;
       db.updateNode(addedNode);
     }
     if (nodeData?.query) {
@@ -245,7 +287,7 @@ function saveTag(tags: string[], nodeId: ID, filePath: string, db: DB) {
   });
   return addedTags;
 }
-const queryResponseRegexp = /◾$/;
+const queryResponseRegexp = /𖥔$/;
 const hashTagRegexp = /(\s|^)#([a-zA-Z0-9-_.]+)/g;
 const queryRegexp = /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g;
 function getNodeMeta(nodes: any[]): NodeData {
