@@ -1,9 +1,11 @@
 import remark from 'remark';
 import gfm from 'remark-gfm';
+import chokidar from 'chokidar';
 
 import { DB, getDb } from './db';
 import { ID, Query } from './types';
 
+var vfile = require('to-vfile');
 var markdownCompile = require('remark-stringify');
 /* 
 // TODO 
@@ -42,50 +44,42 @@ var markdownCompile = require('remark-stringify');
   - refactor addNode to clearly differentiate from saving to db and others. More to update once we get clarity
 */
 
-const testText = `
-
-+ smple paragraph #tag
-  - some other simple
-  - some second child
-    - another child #tag #tag2
-
-a paragraph #tag 
-
-- simple query +tag +tag2
-  - existing data
-  - simple paragraph #tag𖥔
-      - another child #tag2
-  - a paragraph #tag𖥔
-
-`;
-const big = `- [ ] simple **text**  for #tag
-  - child elements
-- query: +tag
-- sime list
-  - hello
-  1. t1
-  2. 42
-
-# hea +results
-- this is a response ◾
-Some simple text #tag   
-
-1. [ ] task 1
-2. [x] task 2
-`;
+let ignoreFiles: string[] = []; // hack to ignore just saved file
 getDb().then((db) => {
-  const s = remark()
-    .use(gfm)
-    .use(() => (tree: any) => {
-      db.deleteAll('file1.md');
-      visitNode('file1.md', tree, null, db, false, false);
-      deleteQueryResults(tree);
-      attachResults(tree, db);
-    })
-    .use(markdownCompile, { listItemIndent: 'one', bullet: '-' })
-    .processSync(testText)
-    .toString();
-  console.log(s);
+  chokidar.watch('/Users/vamshi/Dropbox/life/**/*.md').on('change', (filePath) => {
+    if (ignoreFiles[0] === filePath) {
+      ignoreFiles.shift();
+      return;
+    }
+    const processor = remark()
+      .use(gfm)
+      .use(() => (tree: any) => {
+        try {
+          const a = new Date().getTime() + '';
+          console.time(a);
+          db.deleteAll(filePath);
+          visitNode(filePath, tree, null, db, false, false);
+          deleteQueryResults(tree);
+          attachResults(tree, db);
+          orderTasks(tree);
+          console.timeEnd(a);
+        } catch (e) {
+          console.error(e);
+        }
+      })
+      .use(markdownCompile, {
+        listItemIndent: 'one',
+        bullet: '-',
+        // unsafe: [{ character: '[', inConstruct: ['phrasing', 'label', 'reference', 'destinationRaw'] }],
+      });
+    processor.process(vfile.readSync(filePath), function (error, file) {
+      if (error) throw error;
+      // file.contents = file.contents.replaceAll('- \\[', '- [').replaceAll(/^\\\+/g, '+');
+      file.contents = file.contents.replaceAll('\\', '');
+      vfile.writeSync(file);
+      ignoreFiles.unshift(filePath);
+    });
+  });
 });
 
 function deleteQueryResults(node: any) {
@@ -117,7 +111,7 @@ function attachResults(node: any, db: DB): any[] {
         listResults.concat(paraResults.map((para: any) => ({ type: 'listItem', children: [para] }))),
       );
       return [];
-    } else if (node.type === 'paragraph') {
+    } else if (node.type === 'paragraph' || node.type === 'heading') {
       // add results to parents
       const finalResult = paraResults.flatMap((r) => [
         { type: 'paragraph', children: [{ type: 'text', value: '' }] },
@@ -152,24 +146,41 @@ function getChildren(node: any, db: DB) {
     });
   }
 }
-/**
- * [x] Add result indicator at the end of each node text
- * [ ] Handle all complex scenarios
- * [ ] search children also
- */
 function getResults(query: Query, db: DB): any[] {
   if (query?.include.length > 0) {
     const tagName = query.include[0];
     const restOfTags = query.include.slice(1);
     const tags = db.getAllTagByName(tagName);
-    const results =
+    const exactmatches =
       tags?.flatMap((tag) =>
         tag.references
           .map((nodeId: ID) => db.getNode(nodeId))
           .filter((node: any) => !node.tags.some((tag: string) => query.exclude.includes(tag)))
           .filter((node: any) => restOfTags.every((tag) => node.tags.includes(tag))),
       ) || [];
-    results.forEach((node) => {
+
+    const results = query.include
+      .flatMap((tag) =>
+        db
+          .getAllTagByName(tag)
+          ?.flatMap((tagOb) =>
+            tagOb.references
+              .map((refId: ID) => db.getNode(refId))
+              .flatMap((node: any) =>
+                queryTags(
+                  { include: query.include.filter((t) => t !== tagOb.name), exclude: query.exclude },
+                  node,
+                  exactmatches,
+                  db,
+                ),
+              ),
+          ),
+      )
+      .reduce(
+        (res, curr) => (res.filter((r: any) => r.$loki === curr.$loki).length > 0 ? res : res.concat([curr])),
+        [],
+      );
+    results.forEach((node: any) => {
       getChildren(node, db);
       let para: any;
       if (node.type === 'paragraph') {
@@ -178,32 +189,15 @@ function getResults(query: Query, db: DB): any[] {
         para = node.children[0];
       }
       if (para) {
-        para.children.push({ type: 'text', value: '𖥔' });
+        const fileName = node.filePath.split('/').pop();
+        const fileString = fileName ? ` [${fileName}](${fileName})` : '';
+        para.children.push({ type: 'text', value: `${fileString} 𖥔` });
       }
     });
     return results || [];
   }
   return [];
 }
-
-function queryResults(query: Query, db: DB): any[] {
-  if (query.include.length === 0) {
-    return [];
-  }
-  const tagName = query.include[0];
-  const restOfTags = query.include.slice(1);
-  const tags = db.getAllTagByName(tagName);
-  return (
-    tags?.flatMap((tag) =>
-      tag.references
-        .map((nodeId: ID) => db.getNode(nodeId))
-        .filter((node: any) => !node.tags.some((tag: string) => query.exclude.includes(tag)))
-        .filter((node: any) => restOfTags.every((tag) => node.tags.includes(tag))),
-    ) || []
-  );
-}
-
-function queryChildren(query: Query, nodes: any[], results: any[], db: DB) {}
 
 type NodeData = { tags?: string[]; ignore?: boolean; query?: { include: string[]; exclude: string[] } } | undefined;
 
@@ -219,9 +213,18 @@ function visitNode(
   ignoreChecks: boolean,
 ): ID | null {
   let nodeData: NodeData;
-  if (node.type === 'listItem') {
+  let localTags: string[] = [];
+  if (node.type === 'listItem' && node.children) {
+    if (node.checked !== null) {
+      localTags.push('task');
+      if (node.checked === true) {
+        localTags.push('done');
+      }
+    }
     nodeData = getNodeMeta(node.children[0].children);
   } else if (node.type === 'paragraph' && !ignoreChecks) {
+    nodeData = getNodeMeta(node.children);
+  } else if (node.type === 'heading') {
     nodeData = getNodeMeta(node.children);
   }
   if (nodeData?.ignore) {
@@ -230,13 +233,14 @@ function visitNode(
   }
   let addedNode;
   let savedNodeId: ID | null = null;
-  const doSaveNode = !!(nodeData || save);
+  const doSaveNode = !!(nodeData || save || localTags.length > 0);
   if (doSaveNode) {
     addedNode = saveNode(node, filePath, parentId, db);
     savedNodeId = addedNode.$loki;
-    if (nodeData?.tags) {
-      saveTag(nodeData.tags, addedNode.$loki, filePath, db);
-      addedNode.tags = nodeData.tags;
+    if (nodeData?.tags || localTags.length > 0) {
+      const totalTags = [...(nodeData?.tags || []), ...localTags];
+      saveTag(totalTags, addedNode.$loki, filePath, db);
+      addedNode.tags = totalTags;
       db.updateNode(addedNode);
     }
     if (nodeData?.query) {
@@ -252,7 +256,7 @@ function visitNode(
       node.query = query;
     }
   }
-  if (node.children) {
+  if (node?.children) {
     const childNodes: (ID | null)[] = [];
     node.children.forEach((child: any, index: number) => {
       childNodes.push(
@@ -287,10 +291,11 @@ function saveTag(tags: string[], nodeId: ID, filePath: string, db: DB) {
   });
   return addedTags;
 }
-const queryResponseRegexp = /𖥔$/;
-const hashTagRegexp = /(\s|^)#([a-zA-Z0-9-_.]+)/g;
-const queryRegexp = /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g;
 function getNodeMeta(nodes: any[]): NodeData {
+  const queryResponseRegexp = /𖥔$/;
+  const hashTagRegexp = /(\s|^)#([a-zA-Z0-9-_.]+)/g;
+  const queryRegexp = /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g;
+
   const text = nodes.map((n: any) => n.value).join('');
   if (text.match(queryResponseRegexp)) {
     return { ignore: true };
@@ -303,7 +308,7 @@ function getNodeMeta(nodes: any[]): NodeData {
     tags.push(tag);
   }
   if (tags.length > 0) {
-    return { tags };
+    return { tags: plugins.filter((p) => p.parse).reduce((tags, { parse }) => parse(tags), tags) };
   }
 
   const queryTagMatches = text.matchAll(queryRegexp);
@@ -319,4 +324,79 @@ function getNodeMeta(nodes: any[]): NodeData {
   if (queryTags.include.length > 0 || queryTags.exclude.length > 0) {
     return { query: queryTags };
   }
+}
+
+const plugins = [
+  {
+    name: 'calendar',
+    parse: (tags: string[]) => {
+      // today
+      if (tags.includes('today')) {
+        tags = tags.filter((tag: string) => tag !== 'today');
+        tags.push(new Date().toISOString().slice(0, 10) as string);
+      }
+      if (tags.includes('tomorrow')) {
+        tags = tags.filter((tag: string) => tag !== 'tomorrow');
+        tags.push(new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10) as string);
+      }
+      return tags;
+    },
+  },
+  {
+    name: 'ignoreCase',
+    parse: (tags: string[]) => {
+      return tags.map((tag) => tag.toLowerCase());
+    },
+  },
+];
+
+function orderTasks(node: any) {
+  if (node.type === 'list' && node.children && node.children.length > 0) {
+    node.children = [
+      ...node.children.filter((list: any) => list.checked === null),
+      ...node.children.filter((list: any) => list.checked === false),
+      ...node.children.filter((list: any) => list.checked === true),
+    ];
+  }
+  if (node.children && node.children.length > 0) {
+    node.children.forEach(orderTasks);
+  }
+}
+
+/*
+  - choose a tag , get all nodes matching it
+    - Traverse through the results , if you find a node matching one of other tags
+      - Remove second tag and traverse
+      - Until all are traversed or no tags left
+*/
+
+function queryTags({ include, exclude }: { include: string[]; exclude: string[] }, node: any, results: any[], db: DB) {
+  if (include.length === 0) {
+    return results;
+  }
+  if (node.childIds && node.childIds.length > 0) {
+    node.childIds.forEach((childId: ID) => {
+      const child = db.getNode(childId) as any;
+      if (child.tags && child.tags.length > 0) {
+        if (exclude.length > 0 && child.tags.some((tag: string) => exclude.includes(tag))) {
+          return results; // it has an excluded tag
+        }
+        const commonTags = intersection(child.tags, include); //can be optimized
+        const leftOverTags = include.filter((tag) => !commonTags.includes(tag));
+        if (leftOverTags.length === 0) {
+          results.push(child);
+          return results;
+        } else {
+          return queryTags({ include: leftOverTags, exclude }, child, results, db);
+        }
+      } else {
+        return queryTags({ include, exclude }, child, results, db);
+      }
+    });
+  }
+  return results;
+}
+
+function intersection(list1: string[], list2: string[]) {
+  return list1.filter((el) => list2.includes(el));
 }
