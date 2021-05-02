@@ -164,8 +164,8 @@ function getResults(query: Query, db: DB): any[] {
       }
       if (para) {
         const fileName = node.filePath.split('/').pop();
-        const fileString = fileName ? ` [${fileName}](${fileName})` : '';
-        para.children.push({ type: 'text', value: `${fileString} ·` });
+        const fileString = fileName ? ` [·](${fileName})` : '';
+        para.children.push({ type: 'text', value: `${fileString}·` });
       }
     });
     return uresults || [];
@@ -271,6 +271,7 @@ function getNodeMeta(nodes: any[]): NodeData {
   const queryRegexp = /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g;
 
   const text = nodes.map((n: any) => n.value).join('');
+  console.log(text, text.match(/\[·\]\([a-zA-Z_.]*\)·$/));
   if (text.match(queryResponseRegexp)) {
     return { ignore: true };
   }
