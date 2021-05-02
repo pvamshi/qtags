@@ -138,11 +138,13 @@ function attachResults(node: any, db: DB): any[] {
   return [];
 }
 
-function getChildren(node: any, db: DB) {
+function getChildren(node: any, exclude: string[], db: DB) {
   if (node.childIds) {
-    node.children = node.childIds.map((childID: ID) => db.getNode(childID));
+    node.children = node.childIds
+      .map((childID: ID) => db.getNode(childID))
+      .filter((child: any) => !child.tags || child.tags.every((tag: string) => !exclude.includes(tag)));
     node.children.forEach((child: any) => {
-      getChildren(child, db);
+      getChildren(child, exclude, db);
     });
   }
 }
@@ -181,7 +183,7 @@ function getResults(query: Query, db: DB): any[] {
         [],
       );
     results.forEach((node: any) => {
-      getChildren(node, db);
+      getChildren(node, query.exclude, db);
       let para: any;
       if (node.type === 'paragraph') {
         para = node;
@@ -392,7 +394,3 @@ function queryTags({ include, exclude }: { include: string[]; exclude: string[] 
   }
   return results;
 }
-
-// function intersection(list1: string[], list2: string[]) {
-//   return list1.filter((el) => list2.includes(el));
-// }
