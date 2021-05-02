@@ -70,12 +70,13 @@ getDb().then((db) => {
       .use(markdownCompile, {
         listItemIndent: 'one',
         bullet: '-',
-        // unsafe: [{ character: '[', inConstruct: ['phrasing', 'label', 'reference', 'destinationRaw'] }],
+        rule: '_',
+        join: () => 1,
       });
     processor.process(vfile.readSync(filePath), function (error, file) {
       if (error) throw error;
       // file.contents = file.contents.replaceAll('- \\[', '- [').replaceAll(/^\\\+/g, '+');
-      file.contents = file.contents.replaceAll('\\', '');
+      file.contents = file.contents.replaceAll('\\', '').replaceAll('\n<!---->\n\n', ''); // <!----> happens when query added in header
       vfile.writeSync(file);
       ignoreFiles.unshift(filePath);
     });
@@ -103,7 +104,6 @@ function attachResults(node: any, db: DB): any[] {
     const queryResults = getResults(node.query, db);
 
     const listResults = queryResults.filter((r: any) => r.type === 'listItem');
-
     const paraResults = queryResults.filter((r: any) => r.type === 'paragraph');
     if (node.type === 'listItem') {
       //convert paragraph to listitem
@@ -113,20 +113,20 @@ function attachResults(node: any, db: DB): any[] {
       return [];
     } else if (node.type === 'paragraph' || node.type === 'heading') {
       // add results to parents
-      const finalResult = paraResults.flatMap((r) => [
-        { type: 'paragraph', children: [{ type: 'text', value: '' }] },
-        r,
-      ]);
+      // const finalResult = paraResults.flatMap((r) => [
+      //   { type: 'paragraph', children: [{ type: 'text', value: '' }] },
+      //   r,
+      // ]);
       if (listResults.length > 0) {
         // TODO : If all results are checkbox, add checkbox. if all are done, add done ?
-        finalResult.push({ type: 'list', ordered: false, spread: false, children: listResults });
+        paraResults.push({ type: 'list', ordered: false, spread: false, children: listResults });
       }
-      return finalResult;
+      return paraResults;
     }
   }
   if (node.children && node.children.length > 0) {
     let childrenWithResults: any[] = [];
-    node.children.forEach((child: any, index: number) => {
+    node.children.forEach((child: any) => {
       const childResults = attachResults(child, db);
       childrenWithResults =
         childResults.length > 0
@@ -191,7 +191,7 @@ function getResults(query: Query, db: DB): any[] {
       if (para) {
         const fileName = node.filePath.split('/').pop();
         const fileString = fileName ? ` [${fileName}](${fileName})` : '';
-        para.children.push({ type: 'text', value: `${fileString} 𖥔` });
+        para.children.push({ type: 'text', value: `${fileString} ·` });
       }
     });
     return results || [];
@@ -292,7 +292,7 @@ function saveTag(tags: string[], nodeId: ID, filePath: string, db: DB) {
   return addedTags;
 }
 function getNodeMeta(nodes: any[]): NodeData {
-  const queryResponseRegexp = /𖥔$/;
+  const queryResponseRegexp = /𖥔|·$/;
   const hashTagRegexp = /(\s|^)#([a-zA-Z0-9-_.]+)/g;
   const queryRegexp = /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g;
 
@@ -364,12 +364,8 @@ function orderTasks(node: any) {
 }
 
 /*
-  - choose a tag , get all nodes matching it
-    - Traverse through the results , if you find a node matching one of other tags
-      - Remove second tag and traverse
-      - Until all are traversed or no tags left
+- [ ] Filter our children, which fail the exclude criteria
 */
-
 function queryTags({ include, exclude }: { include: string[]; exclude: string[] }, node: any, results: any[], db: DB) {
   if (include.length === 0) {
     return results;
@@ -381,7 +377,7 @@ function queryTags({ include, exclude }: { include: string[]; exclude: string[] 
         if (exclude.length > 0 && child.tags.some((tag: string) => exclude.includes(tag))) {
           return results; // it has an excluded tag
         }
-        const commonTags = intersection(child.tags, include); //can be optimized
+        const commonTags = child.tags.filter((tag: string) => include.includes(tag));
         const leftOverTags = include.filter((tag) => !commonTags.includes(tag));
         if (leftOverTags.length === 0) {
           results.push(child);
@@ -397,6 +393,6 @@ function queryTags({ include, exclude }: { include: string[]; exclude: string[] 
   return results;
 }
 
-function intersection(list1: string[], list2: string[]) {
-  return list1.filter((el) => list2.includes(el));
-}
+// function intersection(list1: string[], list2: string[]) {
+//   return list1.filter((el) => list2.includes(el));
+// }
