@@ -71,10 +71,13 @@ function attachResults(node: any, db: DB): any[] {
     const paraResults = queryResults.filter((r: any) => r.type === 'paragraph');
     if (node.type === 'listItem') {
       //convert paragraph to listitem
-      node.children.push({
-        type: 'list',
-        children: listResults.concat(paraResults.map((para: any) => ({ type: 'listItem', children: [para] }))),
-      });
+      node.children = node.children
+        .concat(listResults)
+        .concat(paraResults.map((para: any) => ({ type: 'listItem', children: [para] })));
+      // node.children.push({
+      //   type: 'list',
+      //   children: listResults.concat(paraResults.map((para: any) => ({ type: 'listItem', children: [para] }))),
+      // });
       return [];
     } else if (node.type === 'paragraph' || node.type === 'heading') {
       // add results to parents
