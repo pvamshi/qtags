@@ -7,42 +7,6 @@ import { ID, Query } from './types';
 
 var vfile = require('to-vfile');
 var markdownCompile = require('remark-stringify');
-/* 
-// TODO 
-- [x] add queries 
-- [x]task is saved as `[ ] task `
-- [x] detect query result and ignore it
-- [x] While saving  replace children with their ids and tags with their ids
-- [x] add backlinks to tags and queries
-- [x] Fetch query results for this file instantly
-- [-] check if any other file needs to be updated
-- [ ] Run this script when a file is open
-- [x] convert back to markdown
-- [x] result should have square box at the end
-- [ ] search in child nodes for AND condition
-- [x] query by AND with excludetags
-- [x] query , with exclude tag 
-- [ ] query by OR
-- [-] results should of siblings or children. It should behave differently in lists and other way in paragraph
-- [x] children in db should be childrenIds, and remove positions and add parent
-- [x] if query result is a list item, then show list item in the result
-- [x] will paragraph ever get children more than one ? 
-
-- problems 
-  1. [x] one result instead of two 
-  2. [x] not added as child to the result 
-  3. [x] tag should not be saved with filepath
-
-- the new flow should be: 
-  - read each node
-  - if its a query response, delete it
-  - if it has a tag , save the tree to db along with tag
-  - if it is a query, save the tree to db along with query
-  - get all queries, fill with responses
-
-- in progress: 
-  - refactor addNode to clearly differentiate from saving to db and others. More to update once we get clarity
-*/
 
 let ignoreFiles: string[] = []; // hack to ignore just saved file
 getDb().then((db) => {
@@ -107,9 +71,10 @@ function attachResults(node: any, db: DB): any[] {
     const paraResults = queryResults.filter((r: any) => r.type === 'paragraph');
     if (node.type === 'listItem') {
       //convert paragraph to listitem
-      node.children = node.children.concat(
-        listResults.concat(paraResults.map((para: any) => ({ type: 'listItem', children: [para] }))),
-      );
+      node.children.push({
+        type: 'list',
+        children: listResults.concat(paraResults.map((para: any) => ({ type: 'listItem', children: [para] }))),
+      });
       return [];
     } else if (node.type === 'paragraph' || node.type === 'heading') {
       // add results to parents
@@ -182,7 +147,11 @@ function getResults(query: Query, db: DB): any[] {
         (res, curr) => (res.filter((r: any) => r.$loki === curr.$loki).length > 0 ? res : res.concat([curr])),
         [],
       );
-    results.forEach((node: any) => {
+    const uresults = results.flatMap((result: any) =>
+      result.type === 'listItem' ? replaceParentIfHashOnly(result, query.exclude, db) : [result],
+    );
+
+    uresults.forEach((node: any) => {
       getChildren(node, query.exclude, db);
       let para: any;
       if (node.type === 'paragraph') {
@@ -196,7 +165,7 @@ function getResults(query: Query, db: DB): any[] {
         para.children.push({ type: 'text', value: `${fileString} ·` });
       }
     });
-    return results || [];
+    return uresults || [];
   }
   return [];
 }
@@ -393,4 +362,28 @@ function queryTags({ include, exclude }: { include: string[]; exclude: string[] 
     });
   }
   return results;
+}
+
+/**
+ * 
+ If the hash is of the form 
+  - #tag1
+    - child 1
+    - child 2
+  we dont want to include parent in the result. It would be clean
+ */
+function replaceParentIfHashOnly(node: any, exclude: string[], db: DB) {
+  const paragraph = db.getNode(node.childIds[0]) as any;
+  const text = paragraph.childIds.map((t: any) => db.getNode(t).value).join('');
+  if (text.split(' ').filter((w: string) => !w.startsWith('#')).length === 0) {
+    // it only contains hashes, instead of child, add its children
+    return node.childIds
+      .slice(1) // remove paragraph child
+      .map((childID: ID) => db.getNode(childID)) // get all list nodes
+      .filter((n: any) => !!n) // filter out invalid
+      .flatMap((list: any) => (list.childIds || []).map((childId: ID) => db.getNode(childId))) // get all children
+      .filter((child: any) => !child.tags || child.tags.every((tag: string) => !exclude.includes(tag))); // make sure they dont have exclude tag
+  } else {
+    return [node];
+  }
 }

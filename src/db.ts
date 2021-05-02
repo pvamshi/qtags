@@ -3,7 +3,7 @@ import Loki from 'lokijs';
 import { Query, ElementNode, ElementNodeDoc, File, ID, Tag } from './types';
 
 export interface DB {
-  getNode(id: ID): ElementNodeDoc;
+  getNode(id: ID): any;
   addNode(node: any): any;
   deleteNode(nodeId: ID): void;
   updateNode(node: ElementNodeDoc): void;
