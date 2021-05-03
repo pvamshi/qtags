@@ -11,6 +11,8 @@ var markdownCompile = require('remark-stringify');
 let ignoreFiles: string[] = []; // hack to ignore just saved file
 getDb().then((db) => {
   chokidar.watch('/Users/vamshi/Dropbox/life/**/*.md').on('change', (filePath) => {
+    const a = new Date().getTime() + '';
+    console.time(a);
     if (ignoreFiles[0] === filePath) {
       ignoreFiles.shift();
       return;
@@ -19,14 +21,11 @@ getDb().then((db) => {
       .use(gfm)
       .use(() => (tree: any) => {
         try {
-          const a = new Date().getTime() + '';
-          console.time(a);
           db.deleteAll(filePath);
           visitNode(filePath, tree, null, db, false, false);
           deleteQueryResults(tree);
           attachResults(tree, db);
           orderTasks(tree);
-          console.timeEnd(a);
         } catch (e) {
           console.error(e);
         }
@@ -43,6 +42,7 @@ getDb().then((db) => {
       file.contents = file.contents.replaceAll('\\', '').replaceAll('\n<!---->\n\n', ''); // <!----> happens when query added in header
       vfile.writeSync(file);
       ignoreFiles.unshift(filePath);
+      console.timeEnd(a);
     });
   });
 });
@@ -74,19 +74,9 @@ function attachResults(node: any, db: DB): any[] {
       node.children = node.children
         .concat(listResults)
         .concat(paraResults.map((para: any) => ({ type: 'listItem', children: [para] })));
-      // node.children.push({
-      //   type: 'list',
-      //   children: listResults.concat(paraResults.map((para: any) => ({ type: 'listItem', children: [para] }))),
-      // });
       return [];
     } else if (node.type === 'paragraph' || node.type === 'heading') {
-      // add results to parents
-      // const finalResult = paraResults.flatMap((r) => [
-      //   { type: 'paragraph', children: [{ type: 'text', value: '' }] },
-      //   r,
-      // ]);
       if (listResults.length > 0) {
-        // TODO : If all results are checkbox, add checkbox. if all are done, add done ?
         paraResults.push({ type: 'list', ordered: false, spread: false, children: listResults });
       }
       return paraResults;
@@ -191,6 +181,7 @@ function visitNode(
   if (node.type === 'listItem' && node.children) {
     if (node.checked !== null) {
       localTags.push('task');
+      localTags.push('todo');
       if (node.checked === true) {
         localTags.push('done');
       }
@@ -271,7 +262,6 @@ function getNodeMeta(nodes: any[]): NodeData {
   const queryRegexp = /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g;
 
   const text = nodes.map((n: any) => n.value).join('');
-  console.log(text, text.match(/\[·\]\([a-zA-Z_.]*\)·$/));
   if (text.match(queryResponseRegexp)) {
     return { ignore: true };
   }
