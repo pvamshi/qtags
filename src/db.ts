@@ -120,7 +120,7 @@ export async function initDB(): Promise<{
 
 function getFile(nodes: Collection<ElementNode>) {
   return function (filePath: string): (File & LokiObj) | undefined {
-    return nodes.findOne({ filePath }) as (File & LokiObj) | undefined;
+    return nodes.findOne({ type: 'root', filePath }) as (File & LokiObj) | undefined;
   };
 }
 

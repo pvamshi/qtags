@@ -4,14 +4,17 @@ import chokidar from 'chokidar';
 
 import { DB, getDb } from './db';
 import { ID, Query } from './types';
+import { updateDB } from './diff';
 
 var vfile = require('to-vfile');
 var markdownCompile = require('remark-stringify');
+var toMarkdown = require('mdast-util-to-markdown');
 
 let ignoreFiles: string[] = []; // hack to ignore just saved file
 getDb().then((db) => {
   chokidar.watch('/Users/vamshi/Dropbox/life/**/*.md').on('change', (filePath) => {
     const a = new Date().getTime() + '';
+    let filesToUpdate = [];
     console.time(a);
     if (ignoreFiles[0] === filePath) {
       ignoreFiles.shift();
@@ -21,8 +24,9 @@ getDb().then((db) => {
       .use(gfm)
       .use(() => (tree: any) => {
         try {
-          db.deleteAll(filePath);
-          visitNode(filePath, tree, null, db, false, false);
+          db.deleteAll(filePath); // TODO: if we are updaing query , is it ok to delete ?
+          // updateDB(tree, filePath, db);
+          visitNode(filePath, tree, null, db, true, false);
           deleteQueryResults(tree);
           attachResults(tree, db);
           orderTasks(tree);
@@ -44,9 +48,19 @@ getDb().then((db) => {
       ignoreFiles.unshift(filePath);
       console.timeEnd(a);
     });
+    // console.log(
+    //   toMarkdown(log(db.nodes.findOne({ type: 'root', filePath: '/Users/vamshi/Dropbox/life/test.md' }).$loki, db)),
+    // );
   });
 });
 
+function log(nodeID: ID, db: DB) {
+  const node = db.getNode(nodeID);
+  if (node?.childIds) {
+    node.children = node.childIds.map((id: ID) => log(id, db)).filter((n: any) => !!n);
+  }
+  return node;
+}
 function deleteQueryResults(node: any) {
   if (node.children) {
     const initialLength = node.children.length;

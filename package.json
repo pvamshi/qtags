@@ -24,6 +24,7 @@
     "remark-parse": "^9.0.0",
     "remark-stringify": "^9.0.1",
     "to-vfile": "^6.1.0",
+    "unified": "^9.2.1",
     "unist-util-find": "^1.0.2",
     "unist-util-flat-filter": "^1.0.0",
     "unist-util-is": "^5.0.0",
