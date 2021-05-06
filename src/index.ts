@@ -48,13 +48,31 @@ getDb().then((db) => {
       ignoreFiles.unshift(filePath);
       console.timeEnd(a);
     });
-    // console.log(
-    //   toMarkdown(log(db.nodes.findOne({ type: 'root', filePath: '/Users/vamshi/Dropbox/life/test.md' }).$loki, db)),
-    // );
+    // hack to print tree from memory
+    // remark()
+    //   .use(gfm)
+    //   .use(() => (tree) => {
+    //     console.log({ tree });
+    //     const newtree = log(
+    //       db.nodes.findOne({ type: 'root', filePath: '/Users/vamshi/Dropbox/life/test.md' })?.$loki,
+    //       db,
+    //     );
+    //     tree.children = newtree.children;
+    //   })
+    //   .use(markdownCompile, {
+    //     listItemIndent: 'one',
+    //     bullet: '-',
+    //     rule: '_',
+    //     join: () => 1,
+    //   })
+    //   .process('', (er, ff) => console.log(ff.contents.replaceAll('\\', '')));
   });
 });
 
-function log(nodeID: ID, db: DB) {
+function log(nodeID: ID | undefined, db: DB): any {
+  if (!nodeID) {
+    return null;
+  }
   const node = db.getNode(nodeID);
   if (node?.childIds) {
     node.children = node.childIds.map((id: ID) => log(id, db)).filter((n: any) => !!n);
