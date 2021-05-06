@@ -3,7 +3,7 @@ import Loki from 'lokijs';
 import { Query, ElementNode, ElementNodeDoc, File, ID, Tag } from './types';
 
 export interface DB {
-  getNode(id: ID): any;
+  getNode(id: ID, copy?: boolean): any;
   addNode(node: any): any;
   deleteNode(nodeId: ID): void;
   updateNode(node: ElementNodeDoc): void;
@@ -23,7 +23,13 @@ export interface DB {
 
 export async function getDb(): Promise<DB> {
   const { nodes, tags, queries } = await initDB();
-  const getNode = ($loki: ID) => nodes.findOne({ $loki }) as ElementNodeDoc;
+  const getNode = ($loki: ID, copy?: boolean) => {
+    const node = nodes.findOne({ $loki }) as any;
+    if (copy) {
+      return Object.assign({}, node);
+    }
+    return node;
+  };
   const addNode = <T>(node: T) => nodes.insertOne(node) as T;
   const deleteNode = (nodeId: ID) => nodes.removeWhere({ $loki: nodeId });
   const addTag = (name: string, filePath: string, references: ID[] = []) =>

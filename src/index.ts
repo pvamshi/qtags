@@ -100,6 +100,7 @@ function attachResults(node: any, db: DB): any[] {
     let childrenWithResults: any[] = [];
     node.children.forEach((child: any) => {
       const childResults = attachResults(child, db);
+      // console.log({ c: JSON.stringify(node) });
       childrenWithResults =
         childResults.length > 0
           ? childrenWithResults.concat([child, ...childResults])
@@ -113,7 +114,7 @@ function attachResults(node: any, db: DB): any[] {
 function getChildren(node: any, exclude: string[], db: DB) {
   if (node.childIds) {
     node.children = node.childIds
-      .map((childID: ID) => db.getNode(childID))
+      .map((childID: ID) => db.getNode(childID, true))
       .filter((child: any) => !child.tags || child.tags.every((tag: string) => !exclude.includes(tag)));
     node.children.forEach((child: any) => {
       getChildren(child, exclude, db);
@@ -381,6 +382,9 @@ function queryTags({ include, exclude }: { include: string[]; exclude: string[] 
   we dont want to include parent in the result. It would be clean
  */
 function replaceParentIfHashOnly(node: any, exclude: string[], db: DB) {
+  if (!node.childIds || node.childIds.length === 0) {
+    return [node];
+  }
   const paragraph = db.getNode(node.childIds[0]) as any;
   const text = paragraph.childIds.map((t: any) => db.getNode(t).value).join('');
   if (text.split(' ').filter((w: string) => !w.startsWith('#')).length === 0) {
