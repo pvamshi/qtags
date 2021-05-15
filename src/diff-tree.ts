@@ -80,7 +80,7 @@ export function diffTree(
     // both are not text
     const newhashStrings = newNode.children.map(toString);
     const oldhashStrings = oldNode.children.map((child: FullNode) => toString(child as Node));
-    const { additions, deletions, updates } = diffChildren(newhashStrings, oldhashStrings);
+    const { additions, deletions } = diffChildren(newhashStrings, oldhashStrings);
     deletions.forEach((index: number) => deleteNode(oldNode.children[index], true));
     const children = newNode.children.map((child: Node, index: number) => {
       if (additions.includes(index)) {
@@ -98,7 +98,6 @@ export function diffTree(
           return oldNode.children[index];
         }
       }
-      return undefined;
     });
     // oldNode.childIds =
     if (additions.length > 0 || deletions.length > 0) {

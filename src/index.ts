@@ -1,11 +1,30 @@
+import Loki from 'lokijs';
+
+import { generateUpdateNode, generateAddNode } from './generate-node';
 import { diffTree } from './diff-tree';
 import { parse } from './md-tools';
 import { FullNode, ID, Node, NodeDB, RootDB } from './types';
-import Loki from 'lokijs';
 
-const txt = ` hello 1
+/**
+ * 
+- Refactor to dynamically add node types
+  - make everything async
+  - seperate db implementation
+- update listitem when checked
+- get hash when type is listitem or paragraph
+  - if todo, add todo tag
+  - if done, add done tag
+- update tag when deleted
+- handle queries
+  - save query if found
+  - update query results appropriately
+- add query results while generating text
+  - update query with results
+ */
 
-new para§
+const txt = ` hello 1  **sdsd** 
+
+new para§ [path](path.md)
 `;
 async function start() {
   const dbFuns = await getDB();
@@ -55,62 +74,14 @@ function getTree(nodeId: ID, nodes: Collection<NodeDB>): FullNode | undefined {
   }
 }
 function updateNode(node: NodeDB, nodes: Collection<NodeDB>): NodeDB {
-  let nodeToUpdate;
-  switch (node.type) {
-    case 'text':
-      nodeToUpdate = { type: 'text', value: node.value, $loki: node.$loki, meta: node.meta };
-      break;
-
-    case 'listItem':
-      nodeToUpdate = {
-        type: 'listItem',
-        childIds: node.childIds,
-        ordered: node.ordered,
-        checked: node.checked,
-        $loki: node.$loki,
-        meta: node.meta,
-      };
-      break;
-    case 'root':
-      nodeToUpdate = {
-        type: 'root',
-        childIds: node.childIds,
-        filePath: node.filePath,
-        $loki: node.$loki,
-        meta: node.meta,
-      };
-      break;
-
-    default:
-      const c = node.childIds;
-      nodeToUpdate = { type: node.type, childIds: c, $loki: node.$loki, meta: node.meta };
-      break;
-  }
-  const updatedNode = nodes.update(nodeToUpdate as NodeDB);
-  return updatedNode as NodeDB;
+  return nodes.update(generateUpdateNode(node) as NodeDB);
 }
 
 function addNode(node: Node, nodes: Collection<NodeDB>): NodeDB {
-  let nodeToAdd;
-  switch (node.type) {
-    case 'text':
-      nodeToAdd = { type: 'text', value: node.value };
-      break;
-
-    case 'listItem':
-      nodeToAdd = {
-        type: 'listItem',
-        childIds: node.children.map((c) => addNode(c, nodes).$loki),
-        ordered: node.ordered,
-        checked: node.checked,
-      };
-      break;
-
-    default:
-      nodeToAdd = { type: node.type, childIds: node.children.map((c: Node) => addNode(c, nodes).$loki) };
-      break;
-  }
-  const addedNode = nodes.insertOne(nodeToAdd as NodeDB);
+  const addedNode = nodes.insertOne({
+    ...generateAddNode(node),
+    ...(node.type !== 'text' ? { childIds: node.children.map((c: Node) => addNode(c, nodes).$loki) } : {}),
+  } as NodeDB);
   if (addedNode === undefined) {
     throw new Error('Error while adding node' + JSON.stringify(node));
   }

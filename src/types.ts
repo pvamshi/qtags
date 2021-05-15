@@ -75,6 +75,14 @@ export interface ListItem {
   ordered: boolean;
 }
 export type ListItemDB = { type: 'listItem'; checked: boolean; ordered: boolean; childIds: ID[] } & DBData;
+
+export type Link = {
+  type: 'link';
+  url: string;
+  title: string;
+  children: Text[];
+};
+export type LinkDB = Omit<Link, 'children'> & { childIds: ID[] } & DBData;
 export interface Heading {
   type: 'heading';
   children: Text[];
@@ -82,8 +90,8 @@ export interface Heading {
 }
 export type RootDB = { type: 'root'; filePath: string; childIds: ID[] } & DBData;
 export type HeadingDB = { type: 'heading'; childIds: ID[]; depth: number } & DBData;
-export type Node = List | ListItem | Heading | Paragraph | Text;
-export type NodeDB = ListDB | ListItemDB | HeadingDB | ParagraphDB | TextDB | RootDB;
+export type Node = List | ListItem | Heading | Paragraph | Text | Link;
+export type NodeDB = ListDB | ListItemDB | HeadingDB | ParagraphDB | TextDB | RootDB | LinkDB;
 export type FullNode = NodeDB & { children: FullNode[] };
 export type ElementNode = File | List | ListItem | Paragraph | Text | Heading;
 export type ElementNodeDoc = ElementNode & { $loki: ID };
