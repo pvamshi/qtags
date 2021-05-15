@@ -1,4 +1,4 @@
-import { FullNode, isLeaf, Node, NodeDB } from './types';
+import { FullNode, ID, isLeaf, Node, NodeDB } from './types';
 
 // cyrb53
 function toHash(str: string, seed = 0) {
@@ -23,11 +23,12 @@ function toString(node: Node): string {
 
     case 'heading':
       return toHash(JSON.stringify({ depth: node.depth, children: node.children.map(toString) }));
+    case 'root':
+      return '';
 
     case 'paragraph':
     case 'list':
     default:
-      console.log({ node });
       return isLeaf(node) ? node.value : toHash(node.children.map(toString).join(''));
   }
 }
@@ -52,57 +53,60 @@ function diffChildren(news: string[], old: string[]) {
 /**
  *
  */
-export function diffTree(
+export async function diffTree(
   oldNode: FullNode | undefined,
-  newNode: Node,
+  parentId: ID | undefined,
+  newNode: Node & { children?: Node[] },
   {
     addNode,
     deleteNode,
     updateNode,
   }: {
-    addNode: (node: Node, addChildren?: boolean) => NodeDB;
-    updateNode: (node: NodeDB) => NodeDB;
-    deleteNode: (node: NodeDB, deleteChildren?: boolean) => void;
+    addNode: (node: Node, parentId: ID | undefined) => Promise<NodeDB>;
+    updateNode: (node: NodeDB) => Promise<NodeDB>;
+    deleteNode: (node: NodeDB) => void;
   },
 ) {
   if (!oldNode) {
-    addNode(newNode, true);
+    addNode(newNode, parentId);
   } else if (oldNode !== undefined && oldNode.type !== newNode.type) {
-    addNode(newNode, true);
-    deleteNode(oldNode, true);
+    addNode(newNode, parentId);
+    deleteNode(oldNode);
   } else if (oldNode.type === 'text' && newNode.type === 'text') {
     // update if different
     if (oldNode.value !== newNode.value) {
       oldNode.value = newNode.value;
       updateNode(oldNode);
     }
-  } else if (oldNode?.type !== 'text' && newNode.type !== 'text') {
+  } else if (oldNode?.type !== 'text' && newNode.type !== 'text' && newNode.type !== 'root') {
     // both are not text
     const newhashStrings = newNode.children.map(toString);
     const oldhashStrings = oldNode.children.map((child: FullNode) => toString(child as Node));
     const { additions, deletions } = diffChildren(newhashStrings, oldhashStrings);
-    deletions.forEach((index: number) => deleteNode(oldNode.children[index], true));
-    const children = newNode.children.map((child: Node, index: number) => {
-      if (additions.includes(index)) {
-        return addNode(newNode.children[index]);
-      } else if (newhashStrings[index] === oldhashStrings[index]) {
-        diffTree(oldNode.children[index], child, { addNode, updateNode, deleteNode });
-        return oldNode.children[index];
-      } else {
-        const indexInOld = oldhashStrings.findIndex((hash) => hash === newhashStrings[index]);
-        if (indexInOld !== -1) {
-          diffTree(oldNode.children[indexInOld], child, { addNode, updateNode, deleteNode });
-          return oldNode.children[indexInOld];
-        } else {
-          diffTree(oldNode.children[index], child, { addNode, updateNode, deleteNode });
+    deletions.forEach(async (index: number) => await deleteNode(oldNode.children[index]));
+    const children = await Promise.all(
+      newNode.children.map(async (child: Node, index: number) => {
+        if (additions.includes(index)) {
+          return await addNode(newNode.children[index], oldNode.$loki);
+        } else if (newhashStrings[index] === oldhashStrings[index]) {
+          diffTree(oldNode.children[index], oldNode.$loki, child, { addNode, updateNode, deleteNode });
           return oldNode.children[index];
+        } else {
+          const indexInOld = oldhashStrings.findIndex((hash) => hash === newhashStrings[index]);
+          if (indexInOld !== -1) {
+            diffTree(oldNode.children[indexInOld], oldNode.$loki, child, { addNode, updateNode, deleteNode });
+            return oldNode.children[indexInOld];
+          } else {
+            diffTree(oldNode.children[index], oldNode.$loki, child, { addNode, updateNode, deleteNode });
+            return oldNode.children[index];
+          }
         }
-      }
-    });
+      }),
+    );
     // oldNode.childIds =
     if (additions.length > 0 || deletions.length > 0) {
       oldNode.childIds = children.filter((n): n is NodeDB => !!n).map((c: NodeDB) => c.$loki);
-      updateNode(oldNode);
+      await updateNode(oldNode);
     }
     //proceed to check children when its not addition
   }

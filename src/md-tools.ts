@@ -1,9 +1,9 @@
 import remark from 'remark';
 import gfm from 'remark-gfm';
 var markdownCompile = require('remark-stringify');
-import { Node } from './types';
+import { Node, Root } from './types';
 
-export async function parse(text: string): Promise<Node> {
+export async function parse(text: string): Promise<Root & { children: Node[] }> {
   return new Promise((resolve, reject) => {
     remark()
       .use(gfm)

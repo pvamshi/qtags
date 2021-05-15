@@ -1,106 +1,65 @@
+import { generateAddNode, generateUpdateNode } from './generate-node';
+import { ID, Node, NodeDB, TextDB } from './types';
 import Loki from 'lokijs';
-const jsonfile = require('jsonfile');
 
-import { Query, ElementNode, ElementNodeDoc, File, ID, Tag } from './types';
+let nodes: Collection<NodeDB> | null;
 
-export interface DB {
-  getNode(id: ID, copy?: boolean): any;
-  addNode(node: any): any;
-  deleteNode(nodeId: ID | undefined): void;
-  updateNode(node: any): void;
-  getFile(filePath: string): (File & LokiObj) | undefined;
-  addQuery(query: Query): (Query & LokiObj) | undefined;
-  getQuery(queryId: ID): (Query & LokiObj) | null;
-  addTag(name: string, filePath: string, references?: ID[]): Tag & LokiObj;
-  addRefToTag(name: string, filePath: string, nodeId: ID): Tag & LokiObj;
-  unlinkFileToTag(filePath: string): void;
-  tags: Collection<Tag>;
-  nodes: Collection<ElementNode>;
-  deleteAll(filePath: string): void;
-  getTagByName(tagName: string, filePath?: string): (Tag & LokiObj) | null;
-  getAllTagByName(tagName: string): (Tag & LokiObj)[] | null;
-  updateTag(tag: Tag & LokiObj): void;
+export async function addNodeToDB(node: Node, parentId?: ID): Promise<NodeDB> {
+  if (!nodes) {
+    await initDB();
+  }
+  const addedNode = nodes!.insertOne(
+    node.type === 'text'
+      ? ({ ...generateAddNode(node), parentId } as TextDB)
+      : ({ ...generateAddNode(node), parentId, childIds: [] } as Exclude<TextDB, NodeDB>),
+  ) as NodeDB | undefined;
+  if (addedNode === undefined) {
+    throw new Error('Error while adding node' + JSON.stringify(node));
+  }
+  if (addedNode.type !== 'text' && node.type !== 'text') {
+    addedNode.childIds = await Promise.all(node.children.map((c: Node) => addNodeToDB(c, addedNode.$loki))).then((n) =>
+      n.map((m) => m.$loki),
+    );
+  }
+  return addedNode as NodeDB;
+}
+export async function updateNodeToDB(node: NodeDB): Promise<NodeDB> {
+  if (!nodes) {
+    await initDB();
+  }
+  return nodes!.update(generateUpdateNode(node) as NodeDB);
+}
+export async function getNodeFromDB(nodeId: ID): Promise<NodeDB> {
+  if (!nodes) {
+    await initDB();
+  }
+  return nodes!.findOne({ $loki: nodeId }) as NodeDB;
 }
 
-export async function getDb(): Promise<DB> {
-  const { nodes, tags, queries } = await initDB();
-  const getNode = ($loki: ID, copy?: boolean) => {
-    const node = nodes.findOne({ $loki }) as any;
-    if (copy) {
-      return Object.assign({}, node);
-    }
-    return node;
-  };
-  const addNode = <T>(node: T) => {
-    if (node.children) {
-      console.log('add', node.children);
-    }
-    return nodes.insertOne(node) as T;
-  };
-  const deleteNode = (nodeId: ID | undefined) => nodes.removeWhere({ $loki: nodeId });
-  const addTag = (name: string, filePath: string, references: ID[] = []) =>
-    tags.insertOne({ name, filePath, references, queries: [] }) as Tag & LokiObj;
-
-  const addRefToTag = (name: string, filePath: string, nodeId: ID): Tag & LokiObj => {
-    let tag: Tag & LokiObj = tags.findOne({ name, filePath }) as Tag & LokiObj;
-    if (!tag) {
-      tag = addTag(name, filePath, [nodeId]) as Tag & LokiObj;
-    } else {
-      tag.references.push(nodeId);
-      tags.update(tag);
-    }
-    return tag;
-  };
-
-  const unlinkFileToTag = (filePath: string) => {
-    tags.removeWhere({ filePath });
-  };
-
-  const updateNode = (node: ElementNodeDoc) => {
-    if (node.children) {
-      console.log('update', { c: node.children });
-    }
-    nodes.update(node);
-  };
-  return {
-    getNode,
-    addNode,
-    deleteNode,
-    updateNode,
-    getFile: getFile(nodes),
-    addQuery: addQuery(queries),
-    addTag,
-    addRefToTag,
-    unlinkFileToTag,
-    tags,
-    nodes,
-    deleteAll: deleteAll(nodes, tags, queries),
-    getQuery: getQuery(queries),
-    updateTag: updateTag(tags),
-    getTagByName: getTagByName(tags),
-    getAllTagByName: getAllTagByName(tags),
-  };
+export async function queryForNode<T>(query: LokiQuery<T>) {
+  if (!nodes) {
+    await initDB();
+  }
+  return nodes!.find(query);
 }
-function deleteAll(nodes: Collection<any>, tags: Collection<Tag>, queries: Collection<Query>) {
-  return (filePath: string) => {
-    nodes.removeWhere({ filePath });
-    tags.removeWhere({ filePath });
-    queries.removeWhere({ filePath });
-  };
+
+export async function deleteNodeFromDB(node: NodeDB) {
+  if (!nodes) {
+    await initDB();
+  }
+
+  if (node.type !== 'text') {
+    nodes!.removeWhere({ $loki: { $in: node.childIds } });
+  }
+  nodes!.remove(node);
 }
-function addQuery(queries: Collection<Query>) {
-  return (query: Query): (Query & LokiObj) | undefined => {
-    return queries.insertOne(query);
-  };
-}
-export async function initDB(): Promise<{
+async function initDB(): Promise<{
   nodes: Collection<any>;
-  tags: Collection<Tag>;
-  queries: Collection<Query>;
+  // tags: Collection<Tag>;
+  // queries: Collection<Query>;
 }> {
-  let nodes: Collection<ElementNode> | null;
-  let tags: Collection<Tag> | null;
-  let queries: Collection<Query> | null;
+  // let tags: Collection<Tag> | null;
+  // let queries: Collection<Query> | null;
   return new Promise((resolve, reject): void => {
     try {
       const db = new Loki('q3.json', {
@@ -110,16 +69,17 @@ export async function initDB(): Promise<{
           if (nodes === null) {
             nodes = db.addCollection('nodes');
           }
-          tags = db.getCollection('tags');
-          if (tags === null) {
-            tags = db.addCollection('tags', { indices: ['name', 'filePath'] });
-          }
-          queries = db.getCollection('queries');
-          if (queries === null) {
-            queries = db.addCollection('queries', { indices: ['filePath'] });
-          }
-          if (tags && nodes && queries) {
-            resolve({ nodes, tags, queries });
+          // tags = db.getCollection('tags');
+          // if (tags === null) {
+          //   tags = db.addCollection('tags', { indices: ['name', 'filePath'] });
+          // }
+          // queries = db.getCollection('queries');
+          // if (queries === null) {
+          //   queries = db.addCollection('queries', { indices: ['filePath'] });
+          // }
+          // if (tags && nodes && queries) {
+          if (nodes) {
+            resolve({ nodes });
           } else {
             reject('something went wrong while loading DB');
           }
@@ -130,64 +90,5 @@ export async function initDB(): Promise<{
     } catch (err) {
       reject(err);
     }
-  });
-}
-
-function getFile(nodes: Collection<ElementNode>) {
-  return function (filePath: string): (File & LokiObj) | undefined {
-    return nodes.findOne({ type: 'root', filePath }) as (File & LokiObj) | undefined;
-  };
-}
-
-function getQuery(queries: Collection<Query>) {
-  return (queryId: ID): (Query & LokiObj) | null => {
-    return queries.findOne({ $loki: queryId });
-  };
-}
-
-function getTagByName(tags: Collection<Tag>) {
-  return (tagName: string, filePath: string): (Tag & LokiObj) | null => {
-    return filePath ? tags.findOne({ name: tagName, filePath }) : tags.findOne({ name: tagName });
-  };
-}
-
-function getAllTagByName(tags: Collection<Tag>) {
-  return (tagName: string): (Tag & LokiObj)[] | null => {
-    return tags.find({ name: tagName });
-  };
-}
-function updateTag(tags: Collection<Tag>) {
-  return (tag: Tag & LokiObj) => {
-    tags.update(tag);
-  };
-}
-
-export function newDB() {
-  return jsonfile.readFile('q4.json').then(({ data: copy }: { data: any[] }) => {
-    const data = [...copy];
-    return {
-      getAll: () => {
-        return data;
-      },
-      getNode: (index: number) => {
-        return Object.assign({}, data[index]);
-      },
-      addNode: (obj: any) => {
-        console.log('add', obj);
-        const index = data.length;
-        data.push(Object.freeze({ $loki: index, ...obj }));
-        return data[index];
-      },
-      updateNode: (obj: any) => {
-        console.log('update', obj, obj.$loki);
-
-        if (obj.$loki !== undefined) {
-          data[obj.$loki] = Object.freeze(obj);
-          return data[obj.$loki];
-        } else {
-          console.error('could not find item for index', obj.$loki);
-        }
-      },
-    };
   });
 }

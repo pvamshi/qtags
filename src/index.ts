@@ -1,15 +1,15 @@
-import Loki from 'lokijs';
-
-import { generateUpdateNode, generateAddNode } from './generate-node';
+import { addNodeToDB, deleteNodeFromDB, getNodeFromDB, queryForNode, updateNodeToDB } from './db';
 import { diffTree } from './diff-tree';
 import { parse } from './md-tools';
-import { FullNode, ID, Node, NodeDB, RootDB } from './types';
+import { isDefined, plugins } from './plugins';
+import { FullNode, ID, Node, NodeDB, Root } from './types';
 
 /**
  * 
 - Refactor to dynamically add node types
   - make everything async
   - seperate db implementation
+  - Refactor to make node types as class, instead of switch case
 - update listitem when checked
 - get hash when type is listitem or paragraph
   - if todo, add todo tag
@@ -23,24 +23,19 @@ import { FullNode, ID, Node, NodeDB, RootDB } from './types';
  */
 
 const txt = ` hello 1  **sdsd** 
-
-new para§ [path](path.md)
 `;
 async function start() {
-  const dbFuns = await getDB();
   const filePath = '/Users/vamshi/Dropbox/life/test.md';
-  let file = dbFuns.getFile(filePath);
-  if (!file) {
-    file = dbFuns.addFile(filePath);
-    console.log({ file });
-  }
-  const text = await parse(txt);
-  const oldTree = dbFuns.getTree(file.$loki);
-  console.log({ text, oldTree: JSON.stringify(oldTree) });
-  diffTree(oldTree, text, {
-    addNode: dbFuns.addNode,
-    updateNode: dbFuns.updateNode,
-    deleteNode: dbFuns.deleteNode,
+  const textTree = (await parse(txt)) as Root;
+  textTree.filePath = filePath;
+
+  const file = (await queryForNode({ type: 'root', filePath }))[0];
+
+  const oldTree = file ? await getTree(file.$loki) : undefined;
+  diffTree(oldTree, file?.$loki, textTree, {
+    addNode: addNode,
+    updateNode: updateNode,
+    deleteNode: deleteNode,
   });
 }
 start().then(() => {
@@ -49,89 +44,38 @@ start().then(() => {
 
 //---------------------- DB --------------------------
 
-async function getDB() {
-  const db = await initDB();
-  return {
-    addNode: (node: Node) => addNode(node, db.nodes),
-    updateNode: (node: NodeDB) => updateNode(node, db.nodes),
-    deleteNode: (node: NodeDB) => deleteNode(node, db.nodes),
-    getNode: (nodeId: ID) => db.nodes.findOne({ $loki: nodeId }),
-    getFile: (filePath: string): RootDB | null => db.nodes.findOne({ type: 'root', filePath }),
-    addFile: (filePath: string): RootDB => db.nodes.insertOne({ type: 'root', filePath, childIds: [] }),
-    getTree: (id: ID) => getTree(id, db.nodes),
-  };
-}
-function getTree(nodeId: ID, nodes: Collection<NodeDB>): FullNode | undefined {
-  const node = { ...nodes.findOne({ $loki: nodeId }) } as FullNode;
+async function getTree(nodeId: ID): Promise<FullNode | undefined> {
+  const node = { ...(await getNodeFromDB(nodeId)) } as FullNode;
   if (node === null) {
     return undefined;
   }
   if (node.type === 'text') {
     return node;
   } else {
-    node.children = node.childIds.map(($loki: ID) => getTree($loki, nodes)).filter((n): n is FullNode => n !== null);
+    node.children = (await Promise.all(node.childIds.map(($loki: ID) => getTree($loki)))).filter(
+      (n: FullNode | undefined): n is FullNode => n !== null,
+    );
     return node;
   }
 }
-function updateNode(node: NodeDB, nodes: Collection<NodeDB>): NodeDB {
-  return nodes.update(generateUpdateNode(node) as NodeDB);
+async function updateNode(node: NodeDB): Promise<NodeDB> {
+  return updateNodeToDB(node);
 }
 
-function addNode(node: Node, nodes: Collection<NodeDB>): NodeDB {
-  const addedNode = nodes.insertOne({
-    ...generateAddNode(node),
-    ...(node.type !== 'text' ? { childIds: node.children.map((c: Node) => addNode(c, nodes).$loki) } : {}),
-  } as NodeDB);
-  if (addedNode === undefined) {
-    throw new Error('Error while adding node' + JSON.stringify(node));
-  }
+async function addNode(node: Node, parentId?: ID): Promise<NodeDB> {
+  plugins
+    .map((p) => p['preAdd'])
+    .filter(isDefined)
+    .forEach((p) => p(node));
+
+  const addedNode = await addNodeToDB(node, parentId);
+  plugins
+    .map((p) => p['postAdd'])
+    .filter(isDefined)
+    .forEach((p) => p(addedNode));
   return addedNode as NodeDB;
 }
 
-function deleteNode(node: NodeDB, nodes: Collection<NodeDB>) {
-  if (node.type !== 'text') {
-    nodes.removeWhere({ $loki: { $in: node.childIds } });
-  }
-  nodes.remove(node);
-}
-
-async function initDB(): Promise<{
-  nodes: Collection<any>;
-  // tags: Collection<Tag>;
-  // queries: Collection<Query>;
-}> {
-  let nodes: Collection<NodeDB> | null;
-  // let tags: Collection<Tag> | null;
-  // let queries: Collection<Query> | null;
-  return new Promise((resolve, reject): void => {
-    try {
-      const db = new Loki('q3.json', {
-        autoload: true,
-        autoloadCallback: () => {
-          nodes = db.getCollection('nodes');
-          if (nodes === null) {
-            nodes = db.addCollection('nodes');
-          }
-          // tags = db.getCollection('tags');
-          // if (tags === null) {
-          //   tags = db.addCollection('tags', { indices: ['name', 'filePath'] });
-          // }
-          // queries = db.getCollection('queries');
-          // if (queries === null) {
-          //   queries = db.addCollection('queries', { indices: ['filePath'] });
-          // }
-          // if (tags && nodes && queries) {
-          if (nodes) {
-            resolve({ nodes });
-          } else {
-            reject('something went wrong while loading DB');
-          }
-        },
-        autosave: true,
-        autosaveInterval: 4000,
-      });
-    } catch (err) {
-      reject(err);
-    }
-  });
+async function deleteNode(node: NodeDB) {
+  await deleteNodeFromDB(node);
 }

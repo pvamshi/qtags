@@ -6,61 +6,41 @@
       "data": [
         {
           "type": "root",
-          "childIds": [3, 5],
           "filePath": "/Users/vamshi/Dropbox/life/test.md",
-          "$loki": 1,
-          "meta": { "revision": 1, "created": 1621087838198, "version": 0, "updated": 1621087838218 }
+          "childIds": [2],
+          "meta": { "revision": 0, "created": 1621122242316, "version": 0 },
+          "$loki": 1
+        },
+        {
+          "type": "paragraph",
+          "parentId": 1,
+          "childIds": [3, 4],
+          "meta": { "revision": 0, "created": 1621122242317, "version": 0 },
+          "$loki": 2
         },
         {
           "type": "text",
           "value": "hello 1  ",
-          "$loki": 2,
-          "meta": { "revision": 1, "created": 1621087838218, "version": 0, "updated": 1621087882287 }
+          "parentId": 2,
+          "meta": { "revision": 0, "created": 1621122242317, "version": 0 },
+          "$loki": 3
         },
         {
-          "type": "paragraph",
-          "childIds": [2, 7],
-          "$loki": 3,
-          "meta": { "revision": 2, "created": 1621087838218, "version": 0, "updated": 1621092354677 }
-        },
-        {
-          "type": "text",
-          "value": "new para§ ",
-          "$loki": 4,
-          "meta": { "revision": 1, "created": 1621087838218, "version": 0, "updated": 1621088682223 }
-        },
-        {
-          "type": "paragraph",
-          "childIds": [4, 12],
-          "$loki": 5,
-          "meta": { "revision": 1, "created": 1621087838218, "version": 0, "updated": 1621088682223 }
+          "type": "strong",
+          "parentId": 2,
+          "childIds": [5],
+          "meta": { "revision": 0, "created": 1621122242317, "version": 0 },
+          "$loki": 4
         },
         {
           "type": "text",
           "value": "sdsd",
-          "meta": { "revision": 0, "created": 1621087882287, "version": 0 },
-          "$loki": 6
-        },
-        {
-          "type": "strong",
-          "childIds": [6],
-          "meta": { "revision": 0, "created": 1621087882287, "version": 0 },
-          "$loki": 7
-        },
-        {
-          "type": "text",
-          "value": "path",
-          "meta": { "revision": 0, "created": 1621088682223, "version": 0 },
-          "$loki": 11
-        },
-        {
-          "type": "link",
-          "childIds": [11],
-          "meta": { "revision": 0, "created": 1621088682223, "version": 0 },
-          "$loki": 12
+          "parentId": 4,
+          "meta": { "revision": 0, "created": 1621122242317, "version": 0 },
+          "$loki": 5
         }
       ],
-      "idIndex": [1, 2, 3, 4, 5, 6, 7, 11, 12],
+      "idIndex": null,
       "binaryIndices": {},
       "constraints": null,
       "uniqueNames": [],
@@ -82,7 +62,7 @@
       "serializableIndices": true,
       "disableFreeze": true,
       "ttl": null,
-      "maxId": 12,
+      "maxId": 5,
       "DynamicViews": [],
       "events": {
         "insert": [],
@@ -114,7 +94,7 @@
     "recursiveWait": true,
     "recursiveWaitLimit": false,
     "recursiveWaitLimitDuration": 2000,
-    "started": 1621092350880
+    "started": 1621122242313
   },
   "persistenceMethod": "fs",
   "persistenceAdapter": null,

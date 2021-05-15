@@ -44,6 +44,7 @@ export type ID = number;
 
 export type DBData = {
   $loki: ID;
+  parentId: ID;
   meta: any;
 };
 export interface Leaf {
@@ -88,9 +89,10 @@ export interface Heading {
   children: Text[];
   depth: number;
 }
-export type RootDB = { type: 'root'; filePath: string; childIds: ID[] } & DBData;
+export type Root = { type: 'root'; filePath: string; children: Node[] };
+export type RootDB = { type: 'root'; filePath: string; childIds: ID[] } & Omit<DBData, 'parentId'>;
 export type HeadingDB = { type: 'heading'; childIds: ID[]; depth: number } & DBData;
-export type Node = List | ListItem | Heading | Paragraph | Text | Link;
+export type Node = List | ListItem | Heading | Paragraph | Text | Link | Root;
 export type NodeDB = ListDB | ListItemDB | HeadingDB | ParagraphDB | TextDB | RootDB | LinkDB;
 export type FullNode = NodeDB & { children: FullNode[] };
 export type ElementNode = File | List | ListItem | Paragraph | Text | Heading;
@@ -119,36 +121,36 @@ export interface Query {
 //   list = 'list',
 //   // generic = 'generic',
 // }
-export type AllElements = {
-  list: List;
-  listItem: ListItem;
-  text: Text;
-  paragraph: Paragraph;
-  heading: Heading;
-};
-export type NodeType = 'list' | 'listItem' | 'paragraph' | 'text' | 'heading';
+// export type AllElements = {
+//   list: List;
+//   listItem: ListItem;
+//   text: Text;
+//   paragraph: Paragraph;
+//   heading: Heading;
+// };
+// export type NodeType = 'list' | 'listItem' | 'paragraph' | 'text' | 'heading';
 
-export function setType(node: Required<{ type: 'list' }>): List;
-export function setType(node: Required<{ type: 'listItem' }>): ListItem;
-export function setType(node: Required<{ type: 'paragraph' }>): Paragraph;
-export function setType(node: Required<{ type: 'text' }>): Text;
-export function setType(node: Required<{ type: 'heading' }>): Heading;
-export function setType(node: Required<{ type: NodeType }>): Node | Tree {
-  switch (node.type) {
-    case 'list':
-      return node as List;
-    case 'listItem':
-      return node as ListItem;
-    case 'paragraph':
-      return node as Paragraph;
-    case 'text':
-      return node as Text;
-    case 'heading':
-      return node as Heading;
-    default:
-      return node as Tree;
-  }
-}
+// export function setType(node: Required<{ type: 'list' }>): List;
+// export function setType(node: Required<{ type: 'listItem' }>): ListItem;
+// export function setType(node: Required<{ type: 'paragraph' }>): Paragraph;
+// export function setType(node: Required<{ type: 'text' }>): Text;
+// export function setType(node: Required<{ type: 'heading' }>): Heading;
+// export function setType(node: Required<{ type: NodeType }>): Node | Tree {
+//   switch (node.type) {
+//     case 'list':
+//       return node as List;
+//     case 'listItem':
+//       return node as ListItem;
+//     case 'paragraph':
+//       return node as Paragraph;
+//     case 'text':
+//       return node as Text;
+//     case 'heading':
+//       return node as Heading;
+//     default:
+//       return node as Tree;
+//   }
+// }
 
 export function isLeaf(node: Leaf | Branch): node is Leaf {
   if (!node) {

@@ -1,9 +1,10 @@
-import { NodeDB, Node, ID, Text, Link, ListItem, Heading, Paragraph, List } from './types';
+import { Heading, Link, List, ListItem, Node, NodeDB, Paragraph, Root, Text } from './types';
 
 export function generateAddNode(
   node: Node,
 ):
   | Text
+  | Omit<Root, 'children'>
   | Omit<Link, 'children'>
   | Omit<ListItem, 'children'>
   | Omit<Heading, 'children'>
@@ -27,13 +28,18 @@ export function generateAddNode(
         type: 'heading',
         depth: node.depth,
       };
+    case 'root':
+      return {
+        type: 'root',
+        filePath: node.filePath,
+      };
   }
   return { type: node.type };
 }
 export function generateUpdateNode(node: NodeDB): NodeDB {
   switch (node.type) {
     case 'text':
-      return { type: 'text', value: node.value, $loki: node.$loki, meta: node.meta };
+      return { type: 'text', value: node.value, $loki: node.$loki, meta: node.meta, parentId: node.parentId };
 
     case 'link':
       return {
@@ -43,6 +49,7 @@ export function generateUpdateNode(node: NodeDB): NodeDB {
         url: node.url,
         $loki: node.$loki,
         meta: node.meta,
+        parentId: node.parentId,
       };
 
     case 'listItem':
@@ -53,6 +60,7 @@ export function generateUpdateNode(node: NodeDB): NodeDB {
         checked: node.checked,
         $loki: node.$loki,
         meta: node.meta,
+        parentId: node.parentId,
       };
     case 'root':
       return {
@@ -69,8 +77,9 @@ export function generateUpdateNode(node: NodeDB): NodeDB {
         $loki: node.$loki,
         meta: node.meta,
         depth: node.depth,
+        parentId: node.parentId,
       };
   }
   node;
-  return { type: node.type, childIds: node.childIds, $loki: node.$loki, meta: node.meta };
+  return { type: node.type, childIds: node.childIds, $loki: node.$loki, meta: node.meta, parentId: node.parentId };
 }
