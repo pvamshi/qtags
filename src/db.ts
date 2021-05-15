@@ -1,12 +1,13 @@
 import Loki from 'lokijs';
+const jsonfile = require('jsonfile');
 
 import { Query, ElementNode, ElementNodeDoc, File, ID, Tag } from './types';
 
 export interface DB {
   getNode(id: ID, copy?: boolean): any;
   addNode(node: any): any;
-  deleteNode(nodeId: ID): void;
-  updateNode(node: ElementNodeDoc): void;
+  deleteNode(nodeId: ID | undefined): void;
+  updateNode(node: any): void;
   getFile(filePath: string): (File & LokiObj) | undefined;
   addQuery(query: Query): (Query & LokiObj) | undefined;
   getQuery(queryId: ID): (Query & LokiObj) | null;
@@ -30,8 +31,13 @@ export async function getDb(): Promise<DB> {
     }
     return node;
   };
-  const addNode = <T>(node: T) => nodes.insertOne(node) as T;
-  const deleteNode = (nodeId: ID) => nodes.removeWhere({ $loki: nodeId });
+  const addNode = <T>(node: T) => {
+    if (node.children) {
+      console.log('add', node.children);
+    }
+    return nodes.insertOne(node) as T;
+  };
+  const deleteNode = (nodeId: ID | undefined) => nodes.removeWhere({ $loki: nodeId });
   const addTag = (name: string, filePath: string, references: ID[] = []) =>
     tags.insertOne({ name, filePath, references, queries: [] }) as Tag & LokiObj;
 
@@ -51,6 +57,9 @@ export async function getDb(): Promise<DB> {
   };
 
   const updateNode = (node: ElementNodeDoc) => {
+    if (node.children) {
+      console.log('update', { c: node.children });
+    }
     nodes.update(node);
   };
   return {
@@ -94,7 +103,7 @@ export async function initDB(): Promise<{
   let queries: Collection<Query> | null;
   return new Promise((resolve, reject): void => {
     try {
-      const db = new Loki('q2.db', {
+      const db = new Loki('q3.json', {
         autoload: true,
         autoloadCallback: () => {
           nodes = db.getCollection('nodes');
@@ -151,4 +160,34 @@ function updateTag(tags: Collection<Tag>) {
   return (tag: Tag & LokiObj) => {
     tags.update(tag);
   };
+}
+
+export function newDB() {
+  return jsonfile.readFile('q4.json').then(({ data: copy }: { data: any[] }) => {
+    const data = [...copy];
+    return {
+      getAll: () => {
+        return data;
+      },
+      getNode: (index: number) => {
+        return Object.assign({}, data[index]);
+      },
+      addNode: (obj: any) => {
+        console.log('add', obj);
+        const index = data.length;
+        data.push(Object.freeze({ $loki: index, ...obj }));
+        return data[index];
+      },
+      updateNode: (obj: any) => {
+        console.log('update', obj, obj.$loki);
+
+        if (obj.$loki !== undefined) {
+          data[obj.$loki] = Object.freeze(obj);
+          return data[obj.$loki];
+        } else {
+          console.error('could not find item for index', obj.$loki);
+        }
+      },
+    };
+  });
 }

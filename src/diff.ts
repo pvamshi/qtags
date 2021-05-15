@@ -1,45 +1,56 @@
 import { DB } from './db';
-import { expandChildren, getTextForListItem, getTextForParagraph } from './utils';
-export function compareListItems(firstNode: any, secondNode: any, db: DB): boolean {
-  if (!(firstNode.childIds || firstNode.children) && !(secondNode.childIds || secondNode.children)) {
-    return true;
+import { ID } from './types';
+
+export function cyrb53(str: string, seed = 0) {
+  let h1 = 0xdeadbeef ^ seed,
+    h2 = 0x41c6ce57 ^ seed;
+  for (let i = 0, ch; i < str.length; i++) {
+    ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
   }
-  if ((firstNode.childIds || firstNode.children).length !== (secondNode.childIds || secondNode.children).length) {
-    return false;
-  }
-  if (getTextForListItem(firstNode, db) !== getTextForListItem(secondNode, db)) {
-    return false;
-  }
-  const expandedFirstNode = expandChildren(firstNode, db);
-  const expandedSecondNode = expandChildren(secondNode, db);
-  return expandedFirstNode.every((child: any, index: number) => compareListItems(child, expandedSecondNode[index], db));
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
 }
 
-export function compareParagraphs(node1: any, node2: any, db: DB): boolean {
-  if (!(node1.childIds || node1.children) && !(node2.childIds || node2.children)) {
+export function diff(news: string[], old: string[]) {
+  const a1 = new Set(old);
+  const a2 = new Set(news);
+  const unique = (arr: string[], a: Set<string>): string[] => arr.filter((x) => !a.has(x)); //.map((s) => indexFromString(s));
+  const unique1 = unique(old, a2);
+  const unique2 = unique(news, a1);
+  const deletions = unique1.filter((n) => !unique2.includes(n)).map((s) => old.indexOf(s));
+  const additions = unique2.filter((n) => !unique1.includes(n)).map((s) => news.indexOf(s));
+  // return { additions, deletions };
+  const updates = additions.filter((d) => deletions.includes(d));
+  return {
+    updates,
+    additions: additions.filter((a) => !updates.includes(a)),
+    deletions: deletions.filter((a) => !updates.includes(a)),
+  };
+}
+
+export type Leaf = { $loki?: ID; value: string; type: string; filePath?: string };
+export type Branch = { $loki?: ID; children: Branch[]; type: string; filePath?: string };
+export type Tree = Leaf | Branch;
+
+export function isLeaf(node: Tree): node is Leaf {
+  if (!node) {
     return true;
   }
-  if ((node1.childIds || node1.children).length !== (node2.childIds || node2.children).length) {
-    return false;
-  }
-  return getTextForParagraph(node1, db) === getTextForParagraph(node2, db);
+  return (node as Leaf).value !== undefined && (node as Branch).children === undefined;
 }
-/*
- for all queries in the file
-  check if a query exists
-  fetch results for query in updated file
-  compare both query results
-  if different, 
-*/
 
-function compareQueryResults() {}
-function getIfQueryExists() {}
+export function toString(item: Tree): string {
+  if (!item) return '';
+  if (isLeaf(item)) return item.value;
+  console.log({ item });
+  return cyrb53(item.children.map(toString).sort().join('')) + '';
+}
 
-export function updateDB(node: any, filePath: string, db: DB) {
-  const file = db.getFile(filePath);
-  if (!file) {
-    //add full tree
-  } else {
-    // diff and update
-  }
+export function getTree(nodeId: ID, db: DB) {
+  const node = db.getNode(nodeId, true);
+  if (node?.childIds) node.children = node.childIds.map((id: ID) => getTree(id, db));
+  return node;
 }

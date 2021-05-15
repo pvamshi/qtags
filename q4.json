@@ -1,0 +1,53 @@
+{
+  "data": [
+    {
+      "childIds": [
+        1
+      ],
+      "$loki": 0,
+      "type": "root",
+      "filePath": "/Users/vamshi/Dropbox/life/test.md"
+    },
+    {
+      "childIds": [
+        5
+      ],
+      "$loki": 1,
+      "type": "paragraph"
+    },
+    {
+      "$loki": 2,
+      "type": "text",
+      "value": "text 1"
+    },
+    {
+      "$loki": 3,
+      "type": "text",
+      "value": "text 12"
+    },
+    {
+      "$loki": 4,
+      "type": "text",
+      "value": "text 12 4"
+    },
+    {
+      "childIds": [
+        6
+      ],
+      "$loki": 5,
+      "type": "listItem"
+    },
+    {
+      "childIds": [
+        7
+      ],
+      "$loki": 6,
+      "type": "paragraph"
+    },
+    {
+      "$loki": 7,
+      "type": "text",
+      "value": "test"
+    }
+  ]
+}
