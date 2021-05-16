@@ -120,5 +120,5 @@ export function isLeaf(node: Leaf | Branch): node is Leaf {
   if (!node) {
     return true;
   }
-  return (node as Leaf).value !== undefined && (node as Branch).children === undefined;
+  return (node as Branch).children === undefined;
 }

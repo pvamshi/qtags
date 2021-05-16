@@ -129,7 +129,7 @@ async function addNode(node: Node, parentId?: ID): Promise<NodeDB> {
       ? ({ ...generateAddNode(node), parentId } as TextDB)
       : ({ ...generateAddNode(node), parentId, childIds: [] } as Exclude<TextDB, NodeDB>);
   const addedNode = (await addNodeToDB(generateNode)) as NodeDB;
-  if (addedNode.type !== 'text' && node.type !== 'text') {
+  if (addedNode.type !== 'text' && node.type !== 'text' && node.children) {
     addedNode.childIds = await Promise.all(node.children.map((c: Node) => addNode(c, addedNode.$loki))).then((n) =>
       n.map((m) => m.$loki),
     );

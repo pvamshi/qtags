@@ -29,7 +29,7 @@ function toString(node: Node): string {
     case 'paragraph':
     case 'list':
     default:
-      return isLeaf(node) ? node.value : toHash(node.children.map(toString).join(''));
+      return isLeaf(node) ? node.value || '' : toHash(node.children.map(toString).join(''));
   }
 }
 
