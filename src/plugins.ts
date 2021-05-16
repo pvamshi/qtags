@@ -1,7 +1,8 @@
 import { getNodeFromDB } from './db';
 import { addQuery } from './queries';
 import { addTag, deleteTagsForNode } from './tags';
-import { ID, ListItemDB, Node, NodeDB, ParagraphDB, Query, QueryTags, TextDB } from './types';
+import { ID, ListItemDB, Node, NodeDB, ParagraphDB, QueryTags, TextDB } from './types';
+
 export interface Plugin {
   name: string;
   preAdd?: (node: Node) => void;
@@ -13,6 +14,8 @@ export interface Plugin {
   transformTags?: (tags: string[]) => string[];
   generateQueries?: (text: string) => QueryTags;
   transformQueries?: (tags: QueryTags) => QueryTags;
+  preBuild?: (node: NodeDB) => void;
+  postBuild?: (node: Node) => Node;
 }
 
 export const plugins: Plugin[] = [

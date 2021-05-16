@@ -1,9 +1,9 @@
 import { addNodeToDB, deleteNodeFromDB, getNodeFromDB, queryForNode, updateNodeToDB } from './db';
 import { diffTree } from './diff-tree';
 import { generateAddNode } from './generate-node';
-import { parse } from './md-tools';
+import { compile, parse } from './md-tools';
 import { isDefined, plugins } from './plugins';
-import { FullNode, ID, Node, NodeDB, Root, TextDB } from './types';
+import { FullNode, ID, Node, NodeDB, Root, RootDB, TextDB } from './types';
 
 /**
  * 
@@ -15,12 +15,12 @@ import { FullNode, ID, Node, NodeDB, Root, TextDB } from './types';
 - get hash when type is listitem or paragraph
   - if todo, add todo tag
   - if done, add done tag
-- update tag when deleted
-- handle queries
-  - save query if found
-  - update query results appropriately
-- add query results while generating text
-  - update query with results
+- update hash only . when parent has only hash, exclude it and include children in the results
+
+- main tasks
+  - generate result from DB
+  - if node has query, attach query results
+- While updating, check for query results
  */
 
 const txt = ` hello 1
@@ -44,6 +44,14 @@ async function start() {
     updateNode,
     deleteNode,
   });
+
+  const fileNew = (await queryForNode({ type: 'root', filePath }))[0];
+  const finalTree = await getNode(fileNew.$loki);
+  const out = await compile(finalTree);
+  console.log('----------');
+  console.log(out);
+  console.log('----------');
+
   console.timeEnd(d + '');
 }
 start().then(() => {
@@ -52,11 +60,35 @@ start().then(() => {
 
 //---------------------- DB --------------------------
 
-async function getTree(nodeId: ID): Promise<FullNode | undefined> {
-  const node = { ...(await getNodeFromDB(nodeId)) } as FullNode;
-  if (node === null) {
+async function getNode(nodeId: ID): Promise<Node | undefined> {
+  const nodeFromDB = await getNodeFromDB(nodeId);
+  if (!nodeFromDB) {
     return undefined;
   }
+  await Promise.all(
+    plugins
+      .map((p) => p['preBuild'])
+      .filter(isDefined)
+      .map((f) => f(nodeFromDB)),
+  );
+  const node = { ...nodeFromDB } as Node;
+  if (nodeFromDB.type !== 'text' && node.type !== 'text') {
+    node.children = (await Promise.all(nodeFromDB.childIds.map((id: ID) => getNode(id)))).filter(isDefined);
+  }
+  await Promise.all(
+    plugins
+      .map((p) => p['postBuild'])
+      .filter(isDefined)
+      .map((f) => f(node)),
+  );
+  return node;
+}
+async function getTree(nodeId: ID): Promise<FullNode | undefined> {
+  const nodeFromDB = await getNodeFromDB(nodeId);
+  if (nodeFromDB === null) {
+    return undefined;
+  }
+  const node = { ...nodeFromDB } as FullNode;
   if (node.type === 'text') {
     return node;
   } else {
