@@ -100,11 +100,11 @@ export type ElementNodeDoc = ElementNode & { $loki: ID };
 
 export interface Tag {
   name: string;
-  filePath: string;
   references: ID[];
   queries: ID[];
 }
 
+export type TagDB = Tag & LokiObj;
 export interface Query {
   filePath: string;
   include: string[];

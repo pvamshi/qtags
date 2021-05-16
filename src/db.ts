@@ -1,25 +1,18 @@
-import { generateAddNode, generateUpdateNode } from './generate-node';
-import { ID, Node, NodeDB, TextDB } from './types';
 import Loki from 'lokijs';
 
-let nodes: Collection<NodeDB> | null;
+import { generateUpdateNode } from './generate-node';
+import { ID, NodeDB, Tag, TagDB } from './types';
 
-export async function addNodeToDB(node: Node, parentId?: ID): Promise<NodeDB> {
+let nodes: Collection<NodeDB> | null;
+let tags: Collection<TagDB> | null | undefined;
+
+export async function addNodeToDB(node: NodeDB): Promise<NodeDB> {
   if (!nodes) {
     await initDB();
   }
-  const addedNode = nodes!.insertOne(
-    node.type === 'text'
-      ? ({ ...generateAddNode(node), parentId } as TextDB)
-      : ({ ...generateAddNode(node), parentId, childIds: [] } as Exclude<TextDB, NodeDB>),
-  ) as NodeDB | undefined;
+  const addedNode = nodes!.insertOne(node);
   if (addedNode === undefined) {
     throw new Error('Error while adding node' + JSON.stringify(node));
-  }
-  if (addedNode.type !== 'text' && node.type !== 'text') {
-    addedNode.childIds = await Promise.all(node.children.map((c: Node) => addNodeToDB(c, addedNode.$loki))).then((n) =>
-      n.map((m) => m.$loki),
-    );
   }
   return addedNode as NodeDB;
 }
@@ -53,9 +46,35 @@ export async function deleteNodeFromDB(node: NodeDB) {
   }
   nodes!.remove(node);
 }
+
+export async function getTagFromDB(tagName: string): Promise<TagDB | null> {
+  if (!tags) {
+    await initDB();
+  }
+  return tags!.findOne({ name: tagName });
+}
+
+export async function addTagToDB(tag: Tag): Promise<TagDB> {
+  // TODO: seperate them to different db
+  if (!tags) {
+    await initDB();
+  }
+  const addedTag = tags!.insertOne(tag as TagDB);
+  if (!addedTag) {
+    throw new Error('error while adding tag');
+  }
+  return addedTag;
+}
+
+export async function updateTag(tag: TagDB): Promise<TagDB> {
+  if (!tags) {
+    await initDB();
+  }
+  return tags!.update(tag);
+}
 async function initDB(): Promise<{
   nodes: Collection<any>;
-  // tags: Collection<Tag>;
+  tags: Collection<Tag>;
   // queries: Collection<Query>;
 }> {
   // let tags: Collection<Tag> | null;
@@ -69,17 +88,17 @@ async function initDB(): Promise<{
           if (nodes === null) {
             nodes = db.addCollection('nodes');
           }
-          // tags = db.getCollection('tags');
-          // if (tags === null) {
-          //   tags = db.addCollection('tags', { indices: ['name', 'filePath'] });
-          // }
+          tags = db.getCollection('tags');
+          if (tags === null) {
+            tags = db.addCollection('tags', { indices: ['name'] });
+          }
           // queries = db.getCollection('queries');
           // if (queries === null) {
           //   queries = db.addCollection('queries', { indices: ['filePath'] });
           // }
           // if (tags && nodes && queries) {
           if (nodes) {
-            resolve({ nodes });
+            resolve({ nodes, tags });
           } else {
             reject('something went wrong while loading DB');
           }

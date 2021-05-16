@@ -78,12 +78,12 @@ export async function diffTree(
       oldNode.value = newNode.value;
       updateNode(oldNode);
     }
-  } else if (oldNode?.type !== 'text' && newNode.type !== 'text' && newNode.type !== 'root') {
+  } else if (oldNode?.type !== 'text' && newNode.type !== 'text') {
     // both are not text
     const newhashStrings = newNode.children.map(toString);
     const oldhashStrings = oldNode.children.map((child: FullNode) => toString(child as Node));
     const { additions, deletions } = diffChildren(newhashStrings, oldhashStrings);
-    deletions.forEach(async (index: number) => await deleteNode(oldNode.children[index]));
+    deletions.forEach(async (index: number) => deleteNode(oldNode.children[index]));
     const children = await Promise.all(
       newNode.children.map(async (child: Node, index: number) => {
         if (additions.includes(index)) {

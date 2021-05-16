@@ -1,8 +1,9 @@
 import { addNodeToDB, deleteNodeFromDB, getNodeFromDB, queryForNode, updateNodeToDB } from './db';
 import { diffTree } from './diff-tree';
+import { generateAddNode } from './generate-node';
 import { parse } from './md-tools';
 import { isDefined, plugins } from './plugins';
-import { FullNode, ID, Node, NodeDB, Root } from './types';
+import { FullNode, ID, Node, NodeDB, Root, TextDB } from './types';
 
 /**
  * 
@@ -22,7 +23,11 @@ import { FullNode, ID, Node, NodeDB, Root } from './types';
   - update query with results
  */
 
-const txt = ` hello 1  **sdsd** 
+const txt = ` hello 1
+
+new line #shiva
+
+- new list #om #nama 
 `;
 async function start() {
   const filePath = '/Users/vamshi/Dropbox/life/test.md';
@@ -32,10 +37,10 @@ async function start() {
   const file = (await queryForNode({ type: 'root', filePath }))[0];
 
   const oldTree = file ? await getTree(file.$loki) : undefined;
-  diffTree(oldTree, file?.$loki, textTree, {
-    addNode: addNode,
-    updateNode: updateNode,
-    deleteNode: deleteNode,
+  await diffTree(oldTree, file?.$loki, textTree, {
+    addNode,
+    updateNode,
+    deleteNode,
   });
 }
 start().then(() => {
@@ -59,23 +64,57 @@ async function getTree(nodeId: ID): Promise<FullNode | undefined> {
   }
 }
 async function updateNode(node: NodeDB): Promise<NodeDB> {
-  return updateNodeToDB(node);
+  await Promise.all(
+    plugins
+      .map((p) => p['preUpdate'])
+      .filter(isDefined)
+      .map((p) => p(node)),
+  );
+  console.log('update', node);
+  const updatedNode = await updateNodeToDB(node);
+  await Promise.all(
+    plugins
+      .map((p) => p['postUpdate'])
+      .filter(isDefined)
+      .map((p) => p(updatedNode)),
+  );
+  return updatedNode;
 }
 
 async function addNode(node: Node, parentId?: ID): Promise<NodeDB> {
-  plugins
-    .map((p) => p['preAdd'])
-    .filter(isDefined)
-    .forEach((p) => p(node));
+  await Promise.all(
+    plugins
+      .map((p) => p['preAdd'])
+      .filter(isDefined)
+      .map((p) => p(node)),
+  );
 
-  const addedNode = await addNodeToDB(node, parentId);
-  plugins
-    .map((p) => p['postAdd'])
-    .filter(isDefined)
-    .forEach((p) => p(addedNode));
+  const generateNode =
+    node.type === 'text'
+      ? ({ ...generateAddNode(node), parentId } as TextDB)
+      : ({ ...generateAddNode(node), parentId, childIds: [] } as Exclude<TextDB, NodeDB>);
+  const addedNode = (await addNodeToDB(generateNode)) as NodeDB;
+  if (addedNode.type !== 'text' && node.type !== 'text') {
+    addedNode.childIds = await Promise.all(node.children.map((c: Node) => addNode(c, addedNode.$loki))).then((n) =>
+      n.map((m) => m.$loki),
+    );
+    updateNodeToDB(addedNode);
+  }
+  await Promise.all(
+    plugins
+      .map((p) => p['postAdd'])
+      .filter(isDefined)
+      .map((p) => p(addedNode)),
+  );
   return addedNode as NodeDB;
 }
 
 async function deleteNode(node: NodeDB) {
+  await Promise.all(
+    plugins
+      .map((p) => p['preDelete'])
+      .filter(isDefined)
+      .map((p) => p(node)),
+  );
   await deleteNodeFromDB(node);
 }
