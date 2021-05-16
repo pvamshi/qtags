@@ -25,9 +25,8 @@ import { FullNode, ID, Node, NodeDB, Root, TextDB } from './types';
 
 const txt = ` hello 1
 
-new line #shiva
 
-- new list #om #nama 
+- new list #om #nama #shivaya
 `;
 async function start() {
   const filePath = '/Users/vamshi/Dropbox/life/test.md';
@@ -109,12 +108,16 @@ async function addNode(node: Node, parentId?: ID): Promise<NodeDB> {
   return addedNode as NodeDB;
 }
 
-async function deleteNode(node: NodeDB) {
+async function deleteNode(nodeID: ID) {
+  const node = await getNodeFromDB(nodeID);
   await Promise.all(
     plugins
       .map((p) => p['preDelete'])
       .filter(isDefined)
       .map((p) => p(node)),
   );
+  if (node.type !== 'text') {
+    await Promise.all(node.childIds.map((id) => deleteNode(id)));
+  }
   await deleteNodeFromDB(node);
 }

@@ -1,5 +1,5 @@
 import { getNodeFromDB } from './db';
-import { addTag } from './tags';
+import { addTag, deleteTagsForNode } from './tags';
 import { ID, ListItemDB, Node, NodeDB, ParagraphDB, TextDB } from './types';
 type methods = 'preAdd' | 'postAdd';
 export interface Plugin {
@@ -8,7 +8,7 @@ export interface Plugin {
   postAdd?: (node: NodeDB) => void;
   preUpdate?: (node: NodeDB) => Node;
   postUpdate?: (node: NodeDB) => void;
-  preDelete?: (node: NodeDB) => Node;
+  preDelete?: (node: NodeDB) => void;
   generateTags?: (text: string) => string[];
   transformTags?: (tags: string[]) => string[];
 }
@@ -24,6 +24,7 @@ export const plugins: Plugin[] = [
     generateTags: basicTags,
     transformTags: (tags) => tags,
   },
+  { name: 'cleanup', preDelete: cleanUpTagsBeforeDelete },
 ];
 
 export function isDefined<T>(val: T | undefined | null): val is T {
@@ -36,8 +37,17 @@ export function runPlugin<T extends keyof Plugin>(fn: T): Plugin[T][] {
   return plugins.map((p) => p[fn]).filter(isDefined);
 }
 
+async function cleanUpTagsBeforeDelete(node: NodeDB) {
+  if (node.type === 'text') {
+    const parent = await getParent(node);
+    if (parent && parent.type === 'paragraph') {
+      const grandParent = await getParent(parent);
+      deleteTagsForNode(grandParent && grandParent.type === 'listItem' ? grandParent : parent);
+    }
+  }
+}
+
 async function addTags(node: NodeDB) {
-  console.log('tags');
   if (node.type === 'text') {
     const parent = await getParent(node);
     if (parent && parent.type === 'paragraph') {
@@ -47,7 +57,6 @@ async function addTags(node: NodeDB) {
         .map((p) => p['generateTags'])
         .filter(isDefined)
         .flatMap((f) => f(text));
-      console.log('tags', tags);
       return Promise.all(
         tags.map((t) => addTag(t, grandParent && grandParent.type === 'listItem' ? grandParent : parent)),
       );

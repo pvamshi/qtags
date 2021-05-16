@@ -64,26 +64,26 @@ export async function diffTree(
   }: {
     addNode: (node: Node, parentId: ID | undefined) => Promise<NodeDB>;
     updateNode: (node: NodeDB) => Promise<NodeDB>;
-    deleteNode: (node: NodeDB) => void;
+    deleteNode: (nodeId: ID) => void;
   },
 ) {
   if (!oldNode) {
     addNode(newNode, parentId);
   } else if (oldNode !== undefined && oldNode.type !== newNode.type) {
     addNode(newNode, parentId);
-    deleteNode(oldNode);
+    deleteNode(oldNode.$loki);
   } else if (oldNode.type === 'text' && newNode.type === 'text') {
     // update if different
     if (oldNode.value !== newNode.value) {
-      oldNode.value = newNode.value;
-      updateNode(oldNode);
+      deleteNode(oldNode.$loki);
+      addNode(newNode, parentId);
     }
   } else if (oldNode?.type !== 'text' && newNode.type !== 'text') {
     // both are not text
     const newhashStrings = newNode.children.map(toString);
     const oldhashStrings = oldNode.children.map((child: FullNode) => toString(child as Node));
     const { additions, deletions } = diffChildren(newhashStrings, oldhashStrings);
-    deletions.forEach(async (index: number) => deleteNode(oldNode.children[index]));
+    deletions.forEach(async (index: number) => deleteNode(oldNode.children[index].$loki));
     const children = await Promise.all(
       newNode.children.map(async (child: Node, index: number) => {
         if (additions.includes(index)) {

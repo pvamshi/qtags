@@ -41,9 +41,6 @@ export async function deleteNodeFromDB(node: NodeDB) {
     await initDB();
   }
 
-  if (node.type !== 'text') {
-    nodes!.removeWhere({ $loki: { $in: node.childIds } });
-  }
   nodes!.remove(node);
 }
 
@@ -54,6 +51,13 @@ export async function getTagFromDB(tagName: string): Promise<TagDB | null> {
   return tags!.findOne({ name: tagName });
 }
 
+export async function getTagsForNode(nodeId: ID) {
+  if (!tags) {
+    return [];
+  }
+
+  return tags.find({ references: { $contains: nodeId } });
+}
 export async function addTagToDB(tag: Tag): Promise<TagDB> {
   // TODO: seperate them to different db
   if (!tags) {
@@ -72,6 +76,14 @@ export async function updateTag(tag: TagDB): Promise<TagDB> {
   }
   return tags!.update(tag);
 }
+
+export async function deleteTag(tag: TagDB) {
+  if (!tags) {
+    return;
+  }
+  return tags.remove(tag);
+}
+
 async function initDB(): Promise<{
   nodes: Collection<any>;
   tags: Collection<Tag>;
