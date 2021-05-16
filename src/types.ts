@@ -1,47 +1,4 @@
 export type ID = number;
-// export interface Position {
-//   start: { line: number; column: number; offset: number };
-//   end: { line: number; column: number; offset: number };
-// }
-// export interface BaseNode {
-//   tags?: ID[];
-//   queries?: ID;
-//   position: Position;
-//   children?: ID[];
-// }
-// export interface File extends BaseNode {
-//   type: 'root';
-//   filePath: string;
-//   children: (List & LokiObj)['$loki'][];
-// }
-// export interface List extends BaseNode {
-//   type: 'list';
-//   ordered?: boolean;
-//   start?: null | number;
-//   spread?: boolean;
-//   children: (ListItem & LokiObj)['$loki'][];
-// }
-// export interface ListItem extends BaseNode {
-//   type: 'listItem';
-//   spread?: boolean;
-//   children: (Paragraph & LokiObj)['$loki'][];
-// }
-// export interface Paragraph extends BaseNode {
-//   type: 'paragraph';
-//   children: (Text & LokiObj)['$loki'][];
-// }
-// export interface Text extends BaseNode {
-//   type: 'text';
-//   value: string;
-//   tags: ID[];
-// }
-
-// export interface Heading extends BaseNode {
-//   depth: number;
-//   type: 'heading';
-//   children: ID[];
-// }
-
 export type DBData = {
   $loki: ID;
   parentId: ID;
@@ -63,7 +20,7 @@ export interface Paragraph {
   type: 'paragraph';
   children: Text[];
 }
-export type ParagraphDB = { type: 'paragraph'; childIds: ID[] } & DBData;
+export type ParagraphDB = { type: 'paragraph'; childIds: ID[]; queryId?: ID } & DBData;
 export interface List {
   type: 'list';
   children: ListItem[];
@@ -75,7 +32,13 @@ export interface ListItem {
   checked: boolean;
   ordered: boolean;
 }
-export type ListItemDB = { type: 'listItem'; checked: boolean; ordered: boolean; childIds: ID[] } & DBData;
+export type ListItemDB = {
+  type: 'listItem';
+  checked: boolean;
+  ordered: boolean;
+  childIds: ID[];
+  queryId?: ID;
+} & DBData;
 
 export type Link = {
   type: 'link';
@@ -106,12 +69,13 @@ export interface Tag {
 
 export type TagDB = Tag & LokiObj;
 export interface Query {
-  filePath: string;
   include: string[];
   exclude: string[];
   results: ID[];
   node: ID;
 }
+export type QueryTags = Pick<Query, 'include' | 'exclude'>;
+export type QueryDB = Query & LokiObj;
 
 // export enum NodeType {
 //   text = 'text',

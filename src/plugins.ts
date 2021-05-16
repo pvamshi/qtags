@@ -1,7 +1,7 @@
 import { getNodeFromDB } from './db';
+import { addQuery } from './queries';
 import { addTag, deleteTagsForNode } from './tags';
-import { ID, ListItemDB, Node, NodeDB, ParagraphDB, TextDB } from './types';
-type methods = 'preAdd' | 'postAdd';
+import { ID, ListItemDB, Node, NodeDB, ParagraphDB, Query, QueryTags, TextDB } from './types';
 export interface Plugin {
   name: string;
   preAdd?: (node: Node) => void;
@@ -11,18 +11,24 @@ export interface Plugin {
   preDelete?: (node: NodeDB) => void;
   generateTags?: (text: string) => string[];
   transformTags?: (tags: string[]) => string[];
+  generateQueries?: (text: string) => QueryTags;
+  transformQueries?: (tags: QueryTags) => QueryTags;
 }
 
 export const plugins: Plugin[] = [
   {
     name: 'add-tags',
     postAdd: addTags,
-    postUpdate: addTags,
   },
   {
     name: 'basic-tags',
     generateTags: basicTags,
     transformTags: (tags) => tags,
+  },
+  {
+    name: 'basic-queries',
+    generateQueries: basicQueries,
+    transformQueries: (query) => query,
   },
   { name: 'cleanup', preDelete: cleanUpTagsBeforeDelete },
 ];
@@ -53,13 +59,28 @@ async function addTags(node: NodeDB) {
     if (parent && parent.type === 'paragraph') {
       const grandParent = await getParent(parent);
       const text = node.value;
+
+      // add tags
       const tags = plugins
         .map((p) => p['generateTags'])
         .filter(isDefined)
         .flatMap((f) => f(text));
-      return Promise.all(
+      await Promise.all(
         tags.map((t) => addTag(t, grandParent && grandParent.type === 'listItem' ? grandParent : parent)),
       );
+
+      // add queries
+      const query = plugins
+        .map((p) => p['generateQueries'])
+        .filter(isDefined)
+        .reduce<QueryTags>(
+          (a, f) => {
+            const { include, exclude } = f(text);
+            return { include: a.include.concat(include), exclude: a.exclude.concat(exclude) };
+          },
+          { include: [], exclude: [] },
+        );
+      await addQuery(query, grandParent && grandParent.type === 'listItem' ? grandParent : parent);
     }
   }
 }
@@ -68,20 +89,6 @@ async function getParent(node: NodeDB) {
     return null;
   }
   return getNodeFromDB(node.parentId);
-}
-async function addTagsForParagraph(node: NodeDB) {
-  if (node.type === 'paragraph') {
-    const parentNode = await getNodeFromDB(node.parentId);
-    if (parentNode.type === 'listItem') {
-      return;
-    }
-    const text = await getTextForParagraph(node);
-    const tags = plugins
-      .map((p) => p['generateTags'])
-      .filter(isDefined)
-      .flatMap((f) => f(text));
-    return Promise.all(tags.map((t) => addTag(t, node)));
-  }
 }
 function basicTags(text: string): string[] {
   const hashTagRegexp = /(\s|^)#([a-zA-Z0-9-_.]+)/g;
@@ -94,7 +101,24 @@ function basicTags(text: string): string[] {
   return plugins
     .map((p) => p['transformTags'])
     .filter(isDefined)
-    .flatMap((f) => f(tags));
+    .reduce((r, f) => f(r), tags);
+}
+function basicQueries(text: string): QueryTags {
+  const queryRegexp = /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g;
+  const queryTagMatches = text.matchAll(queryRegexp);
+  const queryTags: QueryTags = { include: [], exclude: [] };
+
+  for (const match of queryTagMatches) {
+    if (match[2] === '+') {
+      queryTags.include.push(match[3]);
+    } else {
+      queryTags.exclude.push(match[3]);
+    }
+  }
+  return plugins
+    .map((p) => p['transformQueries'])
+    .filter(isDefined)
+    .reduce((r, f) => f(r), queryTags);
 }
 async function getTextForList(listItem: ListItemDB): Promise<string> {
   if (listItem.childIds.length === 0) return '';

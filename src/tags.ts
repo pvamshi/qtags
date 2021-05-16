@@ -1,4 +1,4 @@
-import { addTagToDB, deleteTag, getTagFromDB, getTagsForNode, queryForNode, updateTag } from './db';
+import { addTagToDB, deleteTag, getTagFromDB, getTagsForNode, updateTag } from './db';
 import { NodeDB, TagDB } from './types';
 
 export async function addTag(tagName: string, node: NodeDB): Promise<TagDB> {

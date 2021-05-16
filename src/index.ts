@@ -25,10 +25,13 @@ import { FullNode, ID, Node, NodeDB, Root, TextDB } from './types';
 
 const txt = ` hello 1
 
+some query finally +siva +parvati
 
 - new list #om #nama #shivaya
 `;
 async function start() {
+  const d = new Date().getTime();
+  console.time(d + '');
   const filePath = '/Users/vamshi/Dropbox/life/test.md';
   const textTree = (await parse(txt)) as Root;
   textTree.filePath = filePath;
@@ -41,6 +44,7 @@ async function start() {
     updateNode,
     deleteNode,
   });
+  console.timeEnd(d + '');
 }
 start().then(() => {
   console.log('done');

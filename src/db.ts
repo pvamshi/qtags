@@ -1,10 +1,11 @@
 import Loki from 'lokijs';
 
 import { generateUpdateNode } from './generate-node';
-import { ID, NodeDB, Tag, TagDB } from './types';
+import { ID, NodeDB, Query, QueryDB, Tag, TagDB } from './types';
 
 let nodes: Collection<NodeDB> | null;
 let tags: Collection<TagDB> | null | undefined;
+let queries: Collection<QueryDB> | null;
 
 export async function addNodeToDB(node: NodeDB): Promise<NodeDB> {
   if (!nodes) {
@@ -84,13 +85,49 @@ export async function deleteTag(tag: TagDB) {
   return tags.remove(tag);
 }
 
+export async function addQueryToDB(query: Query): Promise<QueryDB> {
+  if (!queries) {
+    await initDB();
+  }
+  const addedQuery = queries!.insertOne(query as QueryDB);
+  if (!addedQuery) {
+    console.error('failed to add query');
+    throw new Error('failed to add query');
+  }
+  return addedQuery;
+}
+export async function getQueryFromDB(queryId: ID): Promise<QueryDB | null> {
+  if (!queries) {
+    await initDB();
+  }
+  return queries!.findOne({ $loki: queryId });
+}
+
+export async function updateQueryInDB(query: QueryDB) {
+  if (!queries) {
+    await initDB();
+  }
+  return queries!.update(query);
+}
+export async function deleteQueryFromDB(queryId: ID) {
+  if (!queries) {
+    return;
+  }
+  return queries!.removeWhere({ $loki: queryId });
+}
+
+export async function getQueryForNode(nodeId: ID): Promise<QueryDB | null> {
+  if (!queries) {
+    await initDB();
+  }
+  return queries!.findOne({ node: nodeId });
+}
+
 async function initDB(): Promise<{
   nodes: Collection<any>;
-  tags: Collection<Tag>;
-  // queries: Collection<Query>;
+  tags: Collection<TagDB>;
+  queries: Collection<QueryDB>;
 }> {
-  // let tags: Collection<Tag> | null;
-  // let queries: Collection<Query> | null;
   return new Promise((resolve, reject): void => {
     try {
       const db = new Loki('q3.json', {
@@ -104,13 +141,13 @@ async function initDB(): Promise<{
           if (tags === null) {
             tags = db.addCollection('tags', { indices: ['name'] });
           }
-          // queries = db.getCollection('queries');
-          // if (queries === null) {
-          //   queries = db.addCollection('queries', { indices: ['filePath'] });
-          // }
+          queries = db.getCollection('queries');
+          if (queries === null) {
+            queries = db.addCollection('queries');
+          }
           // if (tags && nodes && queries) {
           if (nodes) {
-            resolve({ nodes, tags });
+            resolve({ nodes, tags, queries });
           } else {
             reject('something went wrong while loading DB');
           }
