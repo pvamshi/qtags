@@ -10,12 +10,6 @@ export async function parse(text: string): Promise<Root & { children: Node[] }> 
       .use(function () {
         this.Compiler = (tree: any) => JSON.stringify(tree);
       })
-      .use(markdownCompile, {
-        listItemIndent: 'one',
-        bullet: '-',
-        rule: '_',
-        join: () => 1,
-      })
       .process(text, function (error, file) {
         if (error) reject(error);
         resolve(JSON.parse(file.contents as string));

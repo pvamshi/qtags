@@ -15,7 +15,7 @@ export interface Plugin {
   generateQueries?: (text: string) => QueryTags;
   transformQueries?: (tags: QueryTags) => QueryTags;
   preBuild?: (node: NodeDB) => void;
-  postBuild?: (node: Node) => Node;
+  postBuild?: (node: Node, parent: Node | undefined) => Node;
 }
 
 export const plugins: Plugin[] = [

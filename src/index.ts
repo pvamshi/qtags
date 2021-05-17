@@ -3,7 +3,7 @@ import { diffTree } from './diff-tree';
 import { generateAddNode } from './generate-node';
 import { compile, parse } from './md-tools';
 import { isDefined, plugins } from './plugins';
-import { FullNode, ID, Node, NodeDB, Root, RootDB, TextDB } from './types';
+import { FullNode, ID, Node, NodeDB, Root, TextDB } from './types';
 
 /**
  * 
@@ -18,7 +18,7 @@ import { FullNode, ID, Node, NodeDB, Root, RootDB, TextDB } from './types';
 - update hash only . when parent has only hash, exclude it and include children in the results
 
 - main tasks
-  - generate result from DB
+  + generate result from Db
   - if node has query, attach query results
 - While updating, check for query results
  */
@@ -28,6 +28,7 @@ const txt = ` hello 1
 some query finally +siva +parvati
 
 - new list #om #nama #shivaya
+  - hello
 `;
 async function start() {
   const d = new Date().getTime();
@@ -60,7 +61,7 @@ start().then(() => {
 
 //---------------------- DB --------------------------
 
-async function getNode(nodeId: ID): Promise<Node | undefined> {
+async function getNode(nodeId: ID, parent?: Node): Promise<Node | undefined> {
   const nodeFromDB = await getNodeFromDB(nodeId);
   if (!nodeFromDB) {
     return undefined;
@@ -73,13 +74,13 @@ async function getNode(nodeId: ID): Promise<Node | undefined> {
   );
   const node = { ...nodeFromDB } as Node;
   if (nodeFromDB.type !== 'text' && node.type !== 'text') {
-    node.children = (await Promise.all(nodeFromDB.childIds.map((id: ID) => getNode(id)))).filter(isDefined);
+    node.children = (await Promise.all(nodeFromDB.childIds.map((id: ID) => getNode(id, node)))).filter(isDefined);
   }
   await Promise.all(
     plugins
       .map((p) => p['postBuild'])
       .filter(isDefined)
-      .map((f) => f(node)),
+      .map((f) => f(node, parent)),
   );
   return node;
 }

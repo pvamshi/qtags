@@ -20,7 +20,7 @@ export interface Paragraph {
   type: 'paragraph';
   children: Text[];
 }
-export type ParagraphDB = { type: 'paragraph'; childIds: ID[]; queryId?: ID } & DBData;
+export type ParagraphDB = { type: 'paragraph'; childIds: ID[]; queryId?: ID; tags?: string[] } & DBData;
 export interface List {
   type: 'list';
   children: ListItem[];
@@ -37,6 +37,7 @@ export type ListItemDB = {
   checked: boolean;
   ordered: boolean;
   childIds: ID[];
+  tags?: string[];
   queryId?: ID;
 } & DBData;
 
@@ -71,7 +72,7 @@ export type TagDB = Tag & LokiObj;
 export interface Query {
   include: string[];
   exclude: string[];
-  results: ID[];
+  results: ID[] | null;
   node: ID;
 }
 export type QueryTags = Pick<Query, 'include' | 'exclude'>;

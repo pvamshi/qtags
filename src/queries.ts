@@ -7,12 +7,12 @@ export async function addQuery(query: QueryTags, node: ParagraphDB | ListItemDB)
     return updateQueryInDB({
       $loki: existingQuery.$loki,
       ...query,
-      results: [],
+      results: null,
       node: node.$loki,
       meta: existingQuery.meta,
     });
   }
-  const queryAdded = await addQueryToDB({ ...query, results: [], node: node.$loki });
+  const queryAdded = await addQueryToDB({ ...query, results: null, node: node.$loki });
   node.queryId = queryAdded.$loki;
   await updateNodeToDB(node);
   return queryAdded;
