@@ -3,7 +3,7 @@ import { diffTree } from './diff-tree';
 import { generateAddNode } from './generate-node';
 import { compile, parse } from './md-tools';
 import { isDefined, plugins } from './plugins';
-import { FullNode, ID, Node, NodeDB, Root, TextDB } from './types';
+import { FullNode, ID, List, ListItem, ListItemDB, Node, NodeDB, Paragraph, ParagraphDB, Root, TextDB } from './types';
 
 /**
  * 
@@ -25,10 +25,13 @@ import { FullNode, ID, Node, NodeDB, Root, TextDB } from './types';
 
 const txt = ` hello 1
 
-some query finally +siva +parvati
+some paragraph #siva
+
+some query finally +siva 
 
 - new list #om #nama #shivaya
-  - hello
+  - hello +quer
+    - existing
 `;
 async function start() {
   const d = new Date().getTime();
@@ -72,15 +75,44 @@ async function getNode(nodeId: ID, parent?: Node): Promise<Node | undefined> {
       .filter(isDefined)
       .map((f) => f(nodeFromDB)),
   );
-  const node = { ...nodeFromDB } as Node;
+  const node = { ...nodeFromDB, children: [] } as Node;
   if (nodeFromDB.type !== 'text' && node.type !== 'text') {
-    node.children = (await Promise.all(nodeFromDB.childIds.map((id: ID) => getNode(id, node)))).filter(isDefined);
+    const children = (await Promise.all(nodeFromDB.childIds.map((id: ID) => getNode(id, node)))).filter(isDefined);
+    node.children = (
+      await Promise.all(
+        children.map(async (child): Promise<Node[]> => {
+          if (child.type === 'paragraph') {
+            const results = (
+              await Promise.all(
+                plugins
+                  .map((p) => p['postBuildChildParagraph'])
+                  .filter(isDefined)
+                  .map((f) => f(child as ParagraphDB & Paragraph)),
+              )
+            ).flat();
+            return [child, ...results];
+          } else if (child.type === 'listItem') {
+            const results = (
+              await Promise.all(
+                plugins
+                  .map((p) => p['postBuildChildListItem'])
+                  .filter(isDefined)
+                  .map((f) => f(child as ListItem & ListItemDB)),
+              )
+            ).flat();
+            child.children = child.children.concat(results);
+            return [child];
+          }
+          return [child];
+        }),
+      )
+    ).flat();
   }
   await Promise.all(
     plugins
       .map((p) => p['postBuild'])
       .filter(isDefined)
-      .map((f) => f(node as NodeDB & { children: NodeDB[] }, parent)),
+      .map((f) => f(node as NodeDB & { children: NodeDB[] })),
   );
   return node;
 }
@@ -106,7 +138,6 @@ async function updateNode(node: NodeDB): Promise<NodeDB> {
       .filter(isDefined)
       .map((p) => p(node)),
   );
-  console.log('update', node);
   const updatedNode = await updateNodeToDB(node);
   await Promise.all(
     plugins

@@ -1,7 +1,7 @@
 import { getNodeFromDB } from './db';
-import { addQuery } from './queries';
+import { addQuery, getResults } from './queries';
 import { addTag, deleteTagsForNode } from './tags';
-import { ID, ListItemDB, Node, NodeDB, ParagraphDB, QueryTags, TextDB } from './types';
+import { ID, List, ListItem, ListItemDB, Node, NodeDB, Paragraph, ParagraphDB, QueryTags, TextDB } from './types';
 
 export interface Plugin {
   name: string;
@@ -15,7 +15,9 @@ export interface Plugin {
   generateQueries?: (text: string) => QueryTags | null;
   transformQueries?: (tags: QueryTags) => QueryTags;
   preBuild?: (node: NodeDB) => void;
-  postBuild?: (node: NodeDB & { children: NodeDB[] }, parent: Node | undefined) => void;
+  postBuildChildParagraph?: (node: Paragraph & ParagraphDB) => Promise<Paragraph[]>;
+  postBuildChildListItem?: (node: ListItem & ListItemDB) => Promise<List[]>;
+  postBuild?: (node: NodeDB) => void;
 }
 
 export const plugins: Plugin[] = [
@@ -35,17 +37,44 @@ export const plugins: Plugin[] = [
   },
   { name: 'cleanup', preDelete: cleanUpTagsBeforeDelete },
   {
-    name: 'query-results',
-    postBuild: (node: NodeDB & { children: NodeDB[] }, parent?: Node) => {
-      if (node.type === 'paragraph' || node.type === 'listItem') {
-        if (node.queryId) {
-          console.log('query', node);
-        }
+    name: 'query-results-child-paragraph',
+    postBuildChildParagraph: async (node: Paragraph & ParagraphDB): Promise<Paragraph[]> => {
+      if (node.type === 'paragraph' && node.queryId) {
+        console.log('results', await getResults(node.queryId), node.queryId);
+        return [
+          {
+            type: 'paragraph',
+            children: [{ type: 'text', value: 'a query result' }],
+          },
+        ];
       }
+      return [];
     },
+  },
+  {
+    name: 'query-results-child-listitem',
+    postBuildChildListItem: getQueryResultsForListItem,
   },
 ];
 
+async function getQueryResultsForListItem(node: ListItemDB): Promise<List[]> {
+  if (node.type === 'listItem' && node.queryId) {
+    return [
+      {
+        type: 'list',
+        children: [
+          {
+            type: 'listItem',
+            children: [{ type: 'paragraph', children: [{ type: 'text', value: 'list query result' }] }],
+            ordered: false,
+            checked: null,
+          },
+        ],
+      },
+    ];
+  }
+  return [];
+}
 export function isDefined<T>(val: T | undefined | null): val is T {
   return val !== undefined && val !== null;
 }
@@ -89,7 +118,6 @@ async function addTags(node: NodeDB) {
         .reduce<QueryTags>(
           (a, f) => {
             const queryTags = f(text);
-            console.log(queryTags);
             if (queryTags === null) {
               return a;
             }

@@ -45,7 +45,6 @@ export function isLeaf(node: Tree): node is Leaf {
 export function toString(item: Tree): string {
   if (!item) return '';
   if (isLeaf(item)) return item.value;
-  console.log({ item });
   return cyrb53(item.children.map(toString).sort().join('')) + '';
 }
 

@@ -29,7 +29,7 @@ export type ListDB = { type: 'list'; childIds: ID[] } & DBData;
 export interface ListItem {
   type: 'listItem';
   children: (Paragraph | List)[];
-  checked: boolean;
+  checked: boolean | null;
   ordered: boolean;
 }
 export type ListItemDB = {

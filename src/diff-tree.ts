@@ -14,6 +14,9 @@ function toHash(str: string, seed = 0) {
   return 4294967296 * (2097151 & h2) + (h1 >>> 0) + '';
 }
 function toString(node: Node): string {
+  if (!node) {
+    return '';
+  }
   switch (node.type) {
     case 'listItem':
       return toHash(JSON.stringify({ checked: node.checked, children: node.children.map(toString) }));
