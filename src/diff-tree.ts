@@ -1,4 +1,5 @@
-import { FullNode, ID, isLeaf, Node, NodeDB } from './types';
+import { getNodeFromDB } from './db';
+import { FullNode, ID, isLeaf, Node, NodeDB, TextDB } from './types';
 
 // cyrb53
 function toHash(str: string, seed = 0) {
@@ -77,9 +78,16 @@ export async function diffTree(
     deleteNode(oldNode.$loki);
   } else if (oldNode.type === 'text' && newNode.type === 'text') {
     // update if different
-    if (oldNode.value !== newNode.value) {
+    if (oldNode.value !== newNode.value && parentId) {
+      const parentNode = (await getNodeFromDB(parentId)) as Exclude<NodeDB, TextDB>;
       deleteNode(oldNode.$loki);
-      addNode(newNode, parentId);
+      const addedNode = await addNode(newNode, parentId);
+      const oldIndex = parentNode.childIds.findIndex((idx) => idx === oldNode.$loki);
+      if (oldIndex === -1) {
+        parentNode.childIds.push(addedNode.$loki);
+      }
+      parentNode.childIds[oldIndex] = addedNode.$loki;
+      updateNode(parentNode);
     }
   } else if (oldNode?.type !== 'text' && newNode.type !== 'text') {
     // both are not text

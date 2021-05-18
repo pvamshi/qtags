@@ -22,10 +22,19 @@ import { FullNode, ID, List, ListItem, ListItemDB, Node, NodeDB, Paragraph, Para
   - if node has query, attach query results
 - While updating, check for query results
  */
+/**
+ * 
+ Bugs: 
+  - sometimes text in query paragraph is vanished
+  - we get null for some query
+  - delete. update not seems to work 
 
-const txt = ` hello 1 #sdfs
+ */
 
-new line upd +sdfs
+const txt = ` hello 12346 #up
+
+sdsfd
+sfsdf +up 
 
 `;
 async function start() {
@@ -46,6 +55,7 @@ async function start() {
 
   const fileNew = (await queryForNode({ type: 'root', filePath }))[0];
   const finalTree = await getNode(fileNew.$loki);
+  console.log(JSON.stringify(finalTree));
   const out = await compile(finalTree);
   console.log('----------');
   console.log(out);
@@ -73,7 +83,6 @@ async function getNode(nodeId: ID): Promise<Node | undefined> {
   const node = { ...nodeFromDB, children: [] } as Node;
   if (nodeFromDB.type !== 'text' && node.type !== 'text') {
     const children = (await Promise.all(nodeFromDB.childIds.map((id: ID) => getNode(id)))).filter(isDefined);
-    if (node.type === 'root') console.log(JSON.stringify(children));
     node.children = (
       await Promise.all(
         children.map(async (child): Promise<Node[]> => {
