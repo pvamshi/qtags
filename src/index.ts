@@ -80,7 +80,7 @@ async function getNode(nodeId: ID, parent?: Node): Promise<Node | undefined> {
     plugins
       .map((p) => p['postBuild'])
       .filter(isDefined)
-      .map((f) => f(node, parent)),
+      .map((f) => f(node as NodeDB & { children: NodeDB[] }, parent)),
   );
   return node;
 }

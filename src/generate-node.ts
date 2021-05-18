@@ -61,6 +61,8 @@ export function generateUpdateNode(node: NodeDB): NodeDB {
         $loki: node.$loki,
         meta: node.meta,
         parentId: node.parentId,
+        queryId: node.queryId,
+        tags: node.tags,
       };
     case 'root':
       return {
@@ -78,6 +80,16 @@ export function generateUpdateNode(node: NodeDB): NodeDB {
         meta: node.meta,
         depth: node.depth,
         parentId: node.parentId,
+      };
+    case 'paragraph':
+      return {
+        type: node.type,
+        childIds: node.childIds,
+        $loki: node.$loki,
+        meta: node.meta,
+        parentId: node.parentId,
+        queryId: node.queryId,
+        tags: node.tags,
       };
   }
   node;

@@ -12,10 +12,10 @@ export interface Plugin {
   preDelete?: (node: NodeDB) => void;
   generateTags?: (text: string) => string[];
   transformTags?: (tags: string[]) => string[];
-  generateQueries?: (text: string) => QueryTags;
+  generateQueries?: (text: string) => QueryTags | null;
   transformQueries?: (tags: QueryTags) => QueryTags;
   preBuild?: (node: NodeDB) => void;
-  postBuild?: (node: Node, parent: Node | undefined) => Node;
+  postBuild?: (node: NodeDB & { children: NodeDB[] }, parent: Node | undefined) => void;
 }
 
 export const plugins: Plugin[] = [
@@ -34,6 +34,16 @@ export const plugins: Plugin[] = [
     transformQueries: (query) => query,
   },
   { name: 'cleanup', preDelete: cleanUpTagsBeforeDelete },
+  {
+    name: 'query-results',
+    postBuild: (node: NodeDB & { children: NodeDB[] }, parent?: Node) => {
+      if (node.type === 'paragraph' || node.type === 'listItem') {
+        if (node.queryId) {
+          console.log('query', node);
+        }
+      }
+    },
+  },
 ];
 
 export function isDefined<T>(val: T | undefined | null): val is T {
@@ -78,7 +88,12 @@ async function addTags(node: NodeDB) {
         .filter(isDefined)
         .reduce<QueryTags>(
           (a, f) => {
-            const { include, exclude } = f(text);
+            const queryTags = f(text);
+            console.log(queryTags);
+            if (queryTags === null) {
+              return a;
+            }
+            const { include, exclude } = queryTags;
             return { include: a.include.concat(include), exclude: a.exclude.concat(exclude) };
           },
           { include: [], exclude: [] },
@@ -106,7 +121,7 @@ function basicTags(text: string): string[] {
     .filter(isDefined)
     .reduce((r, f) => f(r), tags);
 }
-function basicQueries(text: string): QueryTags {
+function basicQueries(text: string): QueryTags | null {
   const queryRegexp = /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g;
   const queryTagMatches = text.matchAll(queryRegexp);
   const queryTags: QueryTags = { include: [], exclude: [] };
@@ -117,6 +132,9 @@ function basicQueries(text: string): QueryTags {
     } else {
       queryTags.exclude.push(match[3]);
     }
+  }
+  if (queryTags.include.length === 0) {
+    return null;
   }
   return plugins
     .map((p) => p['transformQueries'])

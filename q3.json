@@ -9,67 +9,98 @@
           "childIds": [2, 3, 4],
           "filePath": "/Users/vamshi/Dropbox/life/test.md",
           "$loki": 1,
-          "meta": { "revision": 1, "created": 1621184246718, "version": 0, "updated": 1621184246734 }
+          "meta": { "revision": 1, "created": 1621313494710, "version": 0, "updated": 1621313494726 }
         },
         {
           "type": "paragraph",
           "childIds": [5],
           "$loki": 2,
-          "meta": { "revision": 2, "created": 1621184246719, "version": 0, "updated": 1621184246733 },
+          "meta": { "revision": 1, "created": 1621313494710, "version": 0, "updated": 1621313494726 },
           "parentId": 1
         },
         {
           "type": "paragraph",
           "childIds": [6],
           "$loki": 3,
-          "meta": { "revision": 2, "created": 1621184246719, "version": 0, "updated": 1621184246733 },
-          "parentId": 1
+          "meta": { "revision": 2, "created": 1621313494710, "version": 0, "updated": 1621313494726 },
+          "parentId": 1,
+          "queryId": 1
         },
         {
           "type": "list",
           "childIds": [7],
           "$loki": 4,
-          "meta": { "revision": 1, "created": 1621184246719, "version": 0, "updated": 1621184246734 },
+          "meta": { "revision": 1, "created": 1621313494710, "version": 0, "updated": 1621313494726 },
           "parentId": 1
         },
         {
           "type": "text",
           "value": "hello 1",
           "parentId": 2,
-          "meta": { "revision": 0, "created": 1621184246720, "version": 0 },
+          "meta": { "revision": 0, "created": 1621313494710, "version": 0 },
           "$loki": 5
         },
         {
           "type": "text",
           "value": "some query finally +siva +parvati",
           "parentId": 3,
-          "meta": { "revision": 0, "created": 1621184246720, "version": 0 },
+          "meta": { "revision": 0, "created": 1621313494710, "version": 0 },
           "$loki": 6
         },
         {
           "type": "listItem",
-          "childIds": [8],
+          "childIds": [8, 9],
           "checked": null,
           "$loki": 7,
-          "meta": { "revision": 2, "created": 1621184246720, "version": 0, "updated": 1621184246734 },
-          "parentId": 4
+          "meta": { "revision": 4, "created": 1621313494710, "version": 0, "updated": 1621313494726 },
+          "parentId": 4,
+          "tags": ["om", "nama", "shivaya"]
         },
         {
           "type": "paragraph",
-          "childIds": [9],
+          "childIds": [10],
           "$loki": 8,
-          "meta": { "revision": 1, "created": 1621184246720, "version": 0, "updated": 1621184246733 },
+          "meta": { "revision": 1, "created": 1621313494711, "version": 0, "updated": 1621313494726 },
+          "parentId": 7
+        },
+        {
+          "type": "list",
+          "childIds": [11],
+          "$loki": 9,
+          "meta": { "revision": 1, "created": 1621313494711, "version": 0, "updated": 1621313494726 },
           "parentId": 7
         },
         {
           "type": "text",
           "value": "new list #om #nama #shivaya",
           "parentId": 8,
-          "meta": { "revision": 0, "created": 1621184246722, "version": 0 },
-          "$loki": 9
+          "meta": { "revision": 0, "created": 1621313494712, "version": 0 },
+          "$loki": 10
+        },
+        {
+          "type": "listItem",
+          "childIds": [12],
+          "checked": null,
+          "$loki": 11,
+          "meta": { "revision": 1, "created": 1621313494712, "version": 0, "updated": 1621313494726 },
+          "parentId": 9
+        },
+        {
+          "type": "paragraph",
+          "childIds": [13],
+          "$loki": 12,
+          "meta": { "revision": 1, "created": 1621313494712, "version": 0, "updated": 1621313494726 },
+          "parentId": 11
+        },
+        {
+          "type": "text",
+          "value": "hello",
+          "parentId": 12,
+          "meta": { "revision": 0, "created": 1621313494723, "version": 0 },
+          "$loki": 13
         }
       ],
-      "idIndex": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "idIndex": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
       "binaryIndices": {},
       "constraints": null,
       "uniqueNames": [],
@@ -91,7 +122,7 @@
       "serializableIndices": true,
       "disableFreeze": true,
       "ttl": null,
-      "maxId": 9,
+      "maxId": 13,
       "DynamicViews": [],
       "events": {
         "insert": [],
@@ -114,21 +145,21 @@
           "name": "om",
           "references": [7],
           "queries": [],
-          "meta": { "revision": 0, "created": 1621184246733, "version": 0 },
+          "meta": { "revision": 0, "created": 1621313494725, "version": 0 },
           "$loki": 1
         },
         {
           "name": "nama",
           "references": [7],
           "queries": [],
-          "meta": { "revision": 0, "created": 1621184246733, "version": 0 },
+          "meta": { "revision": 0, "created": 1621313494725, "version": 0 },
           "$loki": 2
         },
         {
           "name": "shivaya",
           "references": [7],
           "queries": [],
-          "meta": { "revision": 0, "created": 1621184246733, "version": 0 },
+          "meta": { "revision": 0, "created": 1621313494725, "version": 0 },
           "$loki": 3
         }
       ],
@@ -174,28 +205,12 @@
       "name": "queries",
       "data": [
         {
-          "include": [],
-          "exclude": [],
-          "results": [],
-          "node": 2,
-          "meta": { "revision": 0, "created": 1621184246732, "version": 0 },
-          "$loki": 1
-        },
-        {
           "include": ["siva", "parvati"],
           "exclude": [],
-          "results": [],
+          "results": null,
           "node": 3,
-          "meta": { "revision": 0, "created": 1621184246732, "version": 0 },
-          "$loki": 2
-        },
-        {
-          "include": [],
-          "exclude": [],
-          "results": [],
-          "node": 7,
-          "meta": { "revision": 0, "created": 1621184246733, "version": 0 },
-          "$loki": 3
+          "meta": { "revision": 0, "created": 1621313494723, "version": 0 },
+          "$loki": 1
         }
       ],
       "idIndex": null,
@@ -220,7 +235,7 @@
       "serializableIndices": true,
       "disableFreeze": true,
       "ttl": null,
-      "maxId": 3,
+      "maxId": 1,
       "DynamicViews": [],
       "events": {
         "insert": [],
@@ -252,7 +267,7 @@
     "recursiveWait": true,
     "recursiveWaitLimit": false,
     "recursiveWaitLimitDuration": 2000,
-    "started": 1621184246714
+    "started": 1621313494705
   },
   "persistenceMethod": "fs",
   "persistenceAdapter": null,
