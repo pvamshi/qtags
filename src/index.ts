@@ -23,15 +23,10 @@ import { FullNode, ID, List, ListItem, ListItemDB, Node, NodeDB, Paragraph, Para
 - While updating, check for query results
  */
 
-const txt = ` hello 1
+const txt = ` hello 1 #sdfs
 
-some paragraph #siva
+new line upd +sdfs
 
-some query finally +siva 
-
-- new list #om #nama #shivaya
-  - hello +quer
-    - existing
 `;
 async function start() {
   const d = new Date().getTime();
@@ -64,7 +59,7 @@ start().then(() => {
 
 //---------------------- DB --------------------------
 
-async function getNode(nodeId: ID, parent?: Node): Promise<Node | undefined> {
+async function getNode(nodeId: ID): Promise<Node | undefined> {
   const nodeFromDB = await getNodeFromDB(nodeId);
   if (!nodeFromDB) {
     return undefined;
@@ -77,7 +72,8 @@ async function getNode(nodeId: ID, parent?: Node): Promise<Node | undefined> {
   );
   const node = { ...nodeFromDB, children: [] } as Node;
   if (nodeFromDB.type !== 'text' && node.type !== 'text') {
-    const children = (await Promise.all(nodeFromDB.childIds.map((id: ID) => getNode(id, node)))).filter(isDefined);
+    const children = (await Promise.all(nodeFromDB.childIds.map((id: ID) => getNode(id)))).filter(isDefined);
+    if (node.type === 'root') console.log(JSON.stringify(children));
     node.children = (
       await Promise.all(
         children.map(async (child): Promise<Node[]> => {
@@ -90,6 +86,7 @@ async function getNode(nodeId: ID, parent?: Node): Promise<Node | undefined> {
                   .map((f) => f(child as ParagraphDB & Paragraph)),
               )
             ).flat();
+            // console.log(JSON.stringify([child, ...results]));
             return [child, ...results];
           } else if (child.type === 'listItem') {
             const results = (
@@ -99,8 +96,17 @@ async function getNode(nodeId: ID, parent?: Node): Promise<Node | undefined> {
                   .filter(isDefined)
                   .map((f) => f(child as ListItem & ListItemDB)),
               )
-            ).flat();
-            child.children = child.children.concat(results);
+            ).flat() as ListItem[] | Paragraph[];
+            child.children = child.children.concat(
+              results.map((result) =>
+                result.type === 'listItem'
+                  ? { type: 'list', children: [result] }
+                  : {
+                      type: 'list',
+                      children: [{ type: 'listItem', ordered: false, checked: null, children: [result] }],
+                    },
+              ),
+            );
             return [child];
           }
           return [child];

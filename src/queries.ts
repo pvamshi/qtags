@@ -10,6 +10,7 @@ import {
 import { isDefined } from './plugins';
 import { ID, ListItemDB, NodeDB, ParagraphDB, QueryDB, QueryTags } from './types';
 
+// query should have multiple references , we should not duplicate
 export async function addQuery(query: QueryTags, node: ParagraphDB | ListItemDB): Promise<QueryDB | null> {
   if (query.include.length === 0) {
     return null;
@@ -34,30 +35,21 @@ export async function getResults(queryId: ID): Promise<ID[]> {
   const query = await getQueryFromDB(queryId);
   if (!query) return [];
   const includes = (await Promise.all(query.include.map((includeTag) => getTagFromDB(includeTag)))).filter(isDefined);
-  const results = await Promise.all(
-    includes.map((tag) =>
-      tag.references
-        ? tag.references.map(async (nodeId) => {
-            const node = await getNodeFromDB(nodeId);
-            return await queryNodeForTags(node, {
-              include: query.include.filter((t) => t !== tag.name),
-              exclude: query.exclude,
-            });
-          })
-        : [],
-    ),
-  );
-  console.log({ results });
-  // return (
-  //   await Promise.all(
-  //     query.include.flatMap(async (includeTag) => {
-  //       const nodeIds = (await getTagFromDB(includeTag))?.references;
-  //       if (!nodeIds) return [];
-  //       const nodes = await Promise.all(nodeIds.map((nodeId) => getNodeFromDB(nodeId)));
-  //       return nodes.map((node) => queryNodeForTags(node, query));
-  //     }),
-  //   )
-  // ).flat();
+  const refs = includes.map((tagdb) => ({ name: tagdb.name, refs: tagdb.references })).filter((obj) => obj.refs);
+  return (
+    await Promise.all(
+      refs.flatMap(async (ref) => {
+        const nodes = await Promise.all(ref.refs.map((r) => getNodeFromDB(r)));
+        return (
+          await Promise.all(
+            nodes.flatMap((node) =>
+              queryNodeForTags(node, { include: query.include.filter((t) => t !== ref.name), exclude: query.exclude }),
+            ),
+          )
+        ).flat();
+      }),
+    )
+  ).flat();
 }
 
 function hasMatch(node: ListItemDB | ParagraphDB, query: QueryTags): boolean {
@@ -65,7 +57,8 @@ function hasMatch(node: ListItemDB | ParagraphDB, query: QueryTags): boolean {
   return node.tags.some((tag) => query.include.includes(tag)) && !node.tags.some((tag) => query.exclude.includes(tag));
 }
 async function queryNodeForTags(node: NodeDB, query: QueryTags): Promise<ID[]> {
-  if (query.include.length === 0 || node.type === 'text') return [];
+  if (query.include.length === 0) return [node.$loki];
+  if (node.type === 'text') return [];
   const childNodes = await Promise.all(node.childIds.map((childId) => getNodeFromDB(childId)));
   return (
     await Promise.all(

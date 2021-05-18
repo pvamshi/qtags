@@ -15,8 +15,8 @@ export interface Plugin {
   generateQueries?: (text: string) => QueryTags | null;
   transformQueries?: (tags: QueryTags) => QueryTags;
   preBuild?: (node: NodeDB) => void;
-  postBuildChildParagraph?: (node: Paragraph & ParagraphDB) => Promise<Paragraph[]>;
-  postBuildChildListItem?: (node: ListItem & ListItemDB) => Promise<List[]>;
+  postBuildChildParagraph?: (node: Paragraph & ParagraphDB) => Promise<Node[]>;
+  postBuildChildListItem?: (node: ListItem & ListItemDB) => Promise<Node[]>;
   postBuild?: (node: NodeDB) => void;
 }
 
@@ -38,15 +38,10 @@ export const plugins: Plugin[] = [
   { name: 'cleanup', preDelete: cleanUpTagsBeforeDelete },
   {
     name: 'query-results-child-paragraph',
-    postBuildChildParagraph: async (node: Paragraph & ParagraphDB): Promise<Paragraph[]> => {
+    postBuildChildParagraph: async (node: Paragraph & ParagraphDB): Promise<Node[]> => {
       if (node.type === 'paragraph' && node.queryId) {
-        console.log('results', await getResults(node.queryId), node.queryId);
-        return [
-          {
-            type: 'paragraph',
-            children: [{ type: 'text', value: 'a query result' }],
-          },
-        ];
+        const res = await getResults(node.queryId);
+        return await Promise.all(res.map(getNodes));
       }
       return [];
     },
@@ -57,21 +52,18 @@ export const plugins: Plugin[] = [
   },
 ];
 
-async function getQueryResultsForListItem(node: ListItemDB): Promise<List[]> {
+async function getNodes(nodeId: ID) {
+  const node = (await getNodeFromDB(nodeId)) as Node & NodeDB;
+  if (!node || node.type === 'text') {
+    return node;
+  }
+  node.children = (await Promise.all(node.childIds.map(getNodes))) as Node[];
+  return node;
+}
+async function getQueryResultsForListItem(node: ListItemDB): Promise<Node[]> {
   if (node.type === 'listItem' && node.queryId) {
-    return [
-      {
-        type: 'list',
-        children: [
-          {
-            type: 'listItem',
-            children: [{ type: 'paragraph', children: [{ type: 'text', value: 'list query result' }] }],
-            ordered: false,
-            checked: null,
-          },
-        ],
-      },
-    ];
+    const res = await getResults(node.queryId);
+    return await Promise.all(res.map(getNodes));
   }
   return [];
 }
@@ -111,6 +103,7 @@ async function addTags(node: NodeDB) {
         tags.map((t) => addTag(t, grandParent && grandParent.type === 'listItem' ? grandParent : parent)),
       );
 
+      console.log('sss', await getNodeFromDB(parent.$loki));
       // add queries
       const query = plugins
         .map((p) => p['generateQueries'])
