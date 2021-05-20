@@ -133,7 +133,7 @@ async function getNode(nodeId: ID): Promise<Node | undefined> {
       .filter(isDefined)
       .map((f) => f(nodeFromDB)),
   );
-  const node = { ...nodeFromDB, children: [] } as Node;
+  const node = nodeFromDB.type !== 'text' ? ({ ...nodeFromDB, children: [] } as Node) : ({ ...nodeFromDB } as Node);
   if (nodeFromDB.type !== 'text' && node.type !== 'text') {
     const children = (await Promise.all(nodeFromDB.childIds.map((id: ID) => getNode(id)))).filter(isDefined);
     node.children = (
