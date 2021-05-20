@@ -100,16 +100,16 @@ async function start() {
         listItemIndent: 'one',
         bullet: '-',
         rule: '_',
-        join: () => false,
+        join: () => 1,
       });
     processor.process(vfile.readSync(filePath), function (error, file) {
       if (error) throw error;
       // file.contents = file.contents.replaceAll('- \\[', '- [').replaceAll(/^\\\+/g, '+');
       console.log(file.contents, file.toString());
-      // file.contents = file
-      //   .toString()
-      //   .replace(/\\/g, '')
-      //   .replace(/\n<!---->\n\n/g, ''); // <!----> happens when query added in header
+      file.contents = file
+        .toString()
+        .replace(/\\/g, '')
+        .replace(/\n<!---->\n\n/g, ''); // <!----> happens when query added in header
       vfile.writeSync(file);
       ignoreFiles.unshift(filePath);
       console.timeEnd(a);
