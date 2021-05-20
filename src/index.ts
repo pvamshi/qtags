@@ -3,8 +3,16 @@ import { diffTree } from './diff-tree';
 import { generateAddNode } from './generate-node';
 import { compile, parse } from './md-tools';
 import { isDefined, plugins } from './plugins';
+import chokidar from 'chokidar';
 import { FullNode, ID, List, ListItem, ListItemDB, Node, NodeDB, Paragraph, ParagraphDB, Root, TextDB } from './types';
 
+import remark from 'remark';
+import gfm from 'remark-gfm';
+
+var vfile = require('to-vfile');
+// const jsonfile = require('jsonfile');
+var markdownCompile = require('remark-stringify');
+// var toMarkdown = require('mdast-util-to-markdown');
 /**
  * 
 - Refactor to dynamically add node types
@@ -38,30 +46,74 @@ sfsdf +up
 
 `;
 async function start() {
-  const d = new Date().getTime();
-  console.time(d + '');
-  const filePath = '/Users/vamshi/Dropbox/life/test.md';
-  const textTree = (await parse(txt)) as Root;
-  textTree.filePath = filePath;
+  let ignoreFiles: string[] = []; // hack to ignore just saved file
+  chokidar.watch('/Users/vamshi/Dropbox/life/**/*.md').on('change', (filePath: string) => {
+    const a = new Date().getTime() + '';
+    let filesToUpdate = [];
+    console.time(a);
+    if (ignoreFiles[0] === filePath) {
+      ignoreFiles.shift();
+      return;
+    }
+    const processor = remark()
+      .use(gfm)
+      .use(() => async (tree: any) => {
+        try {
+          const d = new Date().getTime();
+          console.time(d + '');
+          // const filePath = '/Users/vamshi/Dropbox/life/test.md';
+          // const textTree = (await parse(txt)) as Root;
+          tree.filePath = filePath;
 
-  const file = (await queryForNode({ type: 'root', filePath }))[0];
+          const file = (await queryForNode({ type: 'root', filePath }))[0];
 
-  const oldTree = file ? await getTree(file.$loki) : undefined;
-  await diffTree(oldTree, file?.$loki, textTree, {
-    addNode,
-    updateNode,
-    deleteNode,
+          const oldTree = file ? await getTree(file.$loki) : undefined;
+          await diffTree(oldTree, file?.$loki, tree, {
+            addNode,
+            updateNode,
+            deleteNode,
+          });
+
+          const fileNew = (await queryForNode({ type: 'root', filePath }))[0];
+          const finalTree = (await getNode(fileNew.$loki)) as Root;
+          if (finalTree) {
+            tree.children = finalTree.children;
+          }
+          // console.log(JSON.stringify(finalTree));
+          // const out = await compile(finalTree);
+          // console.log('----------');
+          // console.log(out);
+          // console.log('----------');
+
+          console.timeEnd(d + '');
+
+          // updateDB(tree, filePath, db);
+          // db.deleteAll(filePath); // TODO: if we are updaing query , is it ok to delete ?
+          // visitNode(filePath, tree, null, db, true, false);
+          // deleteQueryResults(tree);
+          // attachResults(tree, db);
+          // orderTasks(tree);
+          // console.log(JSON.stringify(db.nodes, null, 2));
+        } catch (e) {
+          console.error(e);
+        }
+      })
+      .use(markdownCompile, {
+        listItemIndent: 'one',
+        bullet: '-',
+        rule: '_',
+        join: () => 1,
+      });
+    processor.process(vfile.readSync(filePath), function (error, file) {
+      if (error) throw error;
+      // file.contents = file.contents.replaceAll('- \\[', '- [').replaceAll(/^\\\+/g, '+');
+      console.log(file);
+      // file.contents = (file.contents + '').replaceAll('\\', '').replaceAll('\n<!---->\n\n', ''); // <!----> happens when query added in header
+      vfile.writeSync(file);
+      ignoreFiles.unshift(filePath);
+      console.timeEnd(a);
+    });
   });
-
-  const fileNew = (await queryForNode({ type: 'root', filePath }))[0];
-  const finalTree = await getNode(fileNew.$loki);
-  console.log(JSON.stringify(finalTree));
-  const out = await compile(finalTree);
-  console.log('----------');
-  console.log(out);
-  console.log('----------');
-
-  console.timeEnd(d + '');
 }
 start().then(() => {
   console.log('done');
