@@ -39,7 +39,10 @@ getDb().then((db) => {
     processor.process(vfile.readSync(filePath), function (error, file) {
       if (error) throw error;
       // file.contents = file.contents.replaceAll('- \\[', '- [').replaceAll(/^\\\+/g, '+');
-      file.contents = file.contents.replaceAll('\\', '').replaceAll('\n<!---->\n\n', ''); // <!----> happens when query added in header
+      file.contents = file
+        .toString()
+        .replace(/\\/g, '')
+        .replace(/\n<!---->\n\n/g, ''); // <!----> happens when query added in header
       vfile.writeSync(file);
       ignoreFiles.unshift(filePath);
       console.timeEnd(a);
