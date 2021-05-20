@@ -72,22 +72,22 @@ export async function diffTree(
   },
 ) {
   if (!oldNode) {
-    addNode(newNode, parentId);
+    await addNode(newNode, parentId);
   } else if (oldNode !== undefined && oldNode.type !== newNode.type) {
-    addNode(newNode, parentId);
-    deleteNode(oldNode.$loki);
+    await addNode(newNode, parentId);
+    await deleteNode(oldNode.$loki);
   } else if (oldNode.type === 'text' && newNode.type === 'text') {
     // update if different
     if (oldNode.value !== newNode.value && parentId) {
       const parentNode = (await getNodeFromDB(parentId)) as Exclude<NodeDB, TextDB>;
-      deleteNode(oldNode.$loki);
+      await deleteNode(oldNode.$loki);
       const addedNode = await addNode(newNode, parentId);
       const oldIndex = parentNode.childIds.findIndex((idx) => idx === oldNode.$loki);
       if (oldIndex === -1) {
         parentNode.childIds.push(addedNode.$loki);
       }
       parentNode.childIds[oldIndex] = addedNode.$loki;
-      updateNode(parentNode);
+      await updateNode(parentNode);
     }
   } else if (oldNode?.type !== 'text' && newNode.type !== 'text') {
     // both are not text
@@ -100,15 +100,15 @@ export async function diffTree(
         if (additions.includes(index)) {
           return await addNode(newNode.children[index], oldNode.$loki);
         } else if (newhashStrings[index] === oldhashStrings[index]) {
-          diffTree(oldNode.children[index], oldNode.$loki, child, { addNode, updateNode, deleteNode });
+          await diffTree(oldNode.children[index], oldNode.$loki, child, { addNode, updateNode, deleteNode });
           return oldNode.children[index];
         } else {
           const indexInOld = oldhashStrings.findIndex((hash) => hash === newhashStrings[index]);
           if (indexInOld !== -1) {
-            diffTree(oldNode.children[indexInOld], oldNode.$loki, child, { addNode, updateNode, deleteNode });
+            await diffTree(oldNode.children[indexInOld], oldNode.$loki, child, { addNode, updateNode, deleteNode });
             return oldNode.children[indexInOld];
           } else {
-            diffTree(oldNode.children[index], oldNode.$loki, child, { addNode, updateNode, deleteNode });
+            await diffTree(oldNode.children[index], oldNode.$loki, child, { addNode, updateNode, deleteNode });
             return oldNode.children[index];
           }
         }

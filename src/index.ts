@@ -1,13 +1,11 @@
+import chokidar from 'chokidar';
+import remark from 'remark';
+import gfm from 'remark-gfm';
 import { addNodeToDB, deleteNodeFromDB, getNodeFromDB, queryForNode, updateNodeToDB } from './db';
 import { diffTree } from './diff-tree';
 import { generateAddNode } from './generate-node';
-import { compile, parse } from './md-tools';
 import { isDefined, plugins } from './plugins';
-import chokidar from 'chokidar';
-import { FullNode, ID, List, ListItem, ListItemDB, Node, NodeDB, Paragraph, ParagraphDB, Root, TextDB } from './types';
-
-import remark from 'remark';
-import gfm from 'remark-gfm';
+import { FullNode, ID, ListItem, ListItemDB, Node, NodeDB, Paragraph, ParagraphDB, Root, TextDB } from './types';
 
 var vfile = require('to-vfile');
 // const jsonfile = require('jsonfile');
@@ -102,13 +100,16 @@ async function start() {
         listItemIndent: 'one',
         bullet: '-',
         rule: '_',
-        join: () => 1,
+        join: () => false,
       });
     processor.process(vfile.readSync(filePath), function (error, file) {
       if (error) throw error;
       // file.contents = file.contents.replaceAll('- \\[', '- [').replaceAll(/^\\\+/g, '+');
-      console.log(file);
-      // file.contents = (file.contents + '').replaceAll('\\', '').replaceAll('\n<!---->\n\n', ''); // <!----> happens when query added in header
+      console.log(file.contents, file.toString());
+      // file.contents = file
+      //   .toString()
+      //   .replace(/\\/g, '')
+      //   .replace(/\n<!---->\n\n/g, ''); // <!----> happens when query added in header
       vfile.writeSync(file);
       ignoreFiles.unshift(filePath);
       console.timeEnd(a);
