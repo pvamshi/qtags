@@ -6,6 +6,7 @@ import { diffTree } from './diff-tree';
 import { generateAddNode } from './generate-node';
 import { isDefined, plugins } from './plugins';
 import { FullNode, ID, ListItem, ListItemDB, Node, NodeDB, Paragraph, ParagraphDB, Root, TextDB } from './types';
+import { runSerial } from './utils';
 
 var vfile = require('to-vfile');
 // const jsonfile = require('jsonfile');
@@ -127,12 +128,10 @@ async function getNode(nodeId: ID): Promise<Node | undefined> {
   if (!nodeFromDB) {
     return undefined;
   }
-  await Promise.all(
-    plugins
-      .map((p) => p['preBuild'])
-      .filter(isDefined)
-      .map((f) => f(nodeFromDB)),
-  );
+  plugins
+    .map((p) => p['preBuild'])
+    .filter(isDefined)
+    .map((f) => f(nodeFromDB));
   const node = nodeFromDB.type !== 'text' ? ({ ...nodeFromDB, children: [] } as Node) : ({ ...nodeFromDB } as Node);
   if (nodeFromDB.type !== 'text' && node.type !== 'text') {
     const children = (await Promise.all(nodeFromDB.childIds.map((id: ID) => getNode(id)))).filter(isDefined);
@@ -230,8 +229,9 @@ async function addNode(node: Node, parentId?: ID): Promise<NodeDB> {
       : ({ ...generateAddNode(node), parentId, childIds: [] } as Exclude<TextDB, NodeDB>);
   const addedNode = (await addNodeToDB(generateNode)) as NodeDB;
   if (addedNode.type !== 'text' && node.type !== 'text' && node.children) {
-    addedNode.childIds = await Promise.all(node.children.map((c: Node) => addNode(c, addedNode.$loki))).then((n) =>
-      n.map((m) => m.$loki),
+    addedNode.childIds = await runSerial<ID[]>(
+      node.children.map((c) => async (n) => n.concat((await addNode(c, addedNode.$loki)).$loki)),
+      [],
     );
     updateNodeToDB(addedNode);
   }
@@ -265,17 +265,24 @@ async function deleteNode(nodeID: ID) {
 //   }, []);
 // }
 // runSeq(async (a) => a + 1, [2, 3, 4]).then((v) => console.log(v));
+// function af<T, U>(fn: Promise<T>, fn2: (arg: T) => Promise<T>): Promise<T> {
+//   return fn.then((va) => fn2(va));
+// }
 
-const a =
-  (xx: number) =>
-  async (res: number[]): Promise<number[]> =>
-    res.concat([xx + 3]);
+// const a =
+//   (xx: number) =>
+//   async (res: number[]): Promise<number[]> =>
+//     res.concat([xx + 3]);
+// const ax = [a(1), a(2), a(3)];
 
-const a1 = a(1);
-const a2 = a(2);
-const a3 = a(3);
-const ax = a1([]);
-a1([])
-  .then((re: number[]) => a2(re))
-  .then((re: number[]) => a3(re))
-  .then(console.log);
+// runSerial(
+//   [1, 2, 3].map((n: number) => async () => n + 6),
+//   undefined,
+// ).then(console.log);
+// ax.reduce((re, c) => {
+//   return
+// }, []);
+// a1([])
+//   .then((re: number[]) => a2(re))
+//   .then((re: number[]) => a3(re))
+//   .then(console.log);
