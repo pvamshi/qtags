@@ -1,1 +1,444 @@
-{"filename":"q3.json","collections":[{"name":"nodes","data":[{"type":"root","childIds":[2,3],"filePath":"/Users/vamshi/Dropbox/life/test.md","$loki":1,"meta":{"revision":1,"created":1621376302480,"version":0,"updated":1621376302491}},{"type":"paragraph","childIds":[8],"$loki":2,"meta":{"revision":8,"created":1621376302481,"version":0,"updated":1621376515849},"parentId":1,"tags":["up"],"children":[{"type":"text","value":"hello 12346 #up","parentId":2,"meta":{"revision":0,"created":1621376515841,"version":0},"$loki":8}]},{"type":"paragraph","childIds":[9],"$loki":3,"meta":{"revision":4,"created":1621376302481,"version":0,"updated":1621376515849},"parentId":1,"queryId":1},{"type":"text","value":"hello 12346 #up","parentId":2,"meta":{"revision":0,"created":1621376515841,"version":0},"$loki":8},{"type":"text","value":"sdsfd\nsfsdf +up","parentId":3,"meta":{"revision":0,"created":1621376515841,"version":0},"$loki":9},{"type":"root","childIds":[331,333,335],"filePath":"/Users/vamshi/Dropbox/life/test1.md","$loki":10,"meta":{"revision":29,"created":1621489050011,"version":0,"updated":1621551434192}},{"type":"heading","childIds":[17],"$loki":15,"meta":{"revision":1,"created":1621489402431,"version":0,"updated":1621489402432},"depth":1,"parentId":10},{"type":"list","childIds":[18],"$loki":16,"meta":{"revision":1,"created":1621489402431,"version":0,"updated":1621489402436},"parentId":10},{"type":"text","value":"heating title","parentId":15,"meta":{"revision":0,"created":1621489402431,"version":0},"$loki":17},{"type":"listItem","childIds":[19],"checked":null,"$loki":18,"meta":{"revision":1,"created":1621489402431,"version":0,"updated":1621489402436},"parentId":16},{"type":"paragraph","childIds":[20],"$loki":19,"meta":{"revision":1,"created":1621489402432,"version":0,"updated":1621489402436},"parentId":18},{"type":"text","value":"a list item","parentId":19,"meta":{"revision":0,"created":1621489402432,"version":0},"$loki":20},{"type":"heading","childIds":[23],"$loki":21,"meta":{"revision":1,"created":1621489440082,"version":0,"updated":1621489440083},"depth":1,"parentId":10},{"type":"text","value":"heating title","parentId":21,"meta":{"revision":0,"created":1621489440083,"version":0},"$loki":23},{"type":"heading","childIds":[29],"$loki":27,"meta":{"revision":1,"created":1621489469054,"version":0,"updated":1621489469055},"depth":1,"parentId":10},{"type":"text","value":"heating title","parentId":27,"meta":{"revision":0,"created":1621489469054,"version":0},"$loki":29},{"type":"heading","childIds":[41],"$loki":40,"meta":{"revision":1,"created":1621489480236,"version":0,"updated":1621489480236},"depth":1,"parentId":10},{"type":"text","value":"heating title","parentId":40,"meta":{"revision":0,"created":1621489480236,"version":0},"$loki":41},{"type":"paragraph","childIds":[44],"$loki":42,"meta":{"revision":2,"created":1621489687608,"version":0,"updated":1621489687613},"parentId":10,"tags":["up"]},{"type":"paragraph","childIds":[45],"$loki":43,"meta":{"revision":2,"created":1621489687608,"version":0,"updated":1621489687613},"parentId":10,"queryId":4},{"type":"text","value":"hello 12346 #up","parentId":42,"meta":{"revision":0,"created":1621489687608,"version":0},"$loki":44},{"type":"text","value":"sdsfd\nsfsdf +up","parentId":43,"meta":{"revision":0,"created":1621489687608,"version":0},"$loki":45},{"type":"heading","childIds":[48],"$loki":46,"meta":{"revision":1,"created":1621489946814,"version":0,"updated":1621489946815},"depth":1,"parentId":10},{"type":"text","value":"heating title","parentId":46,"meta":{"revision":0,"created":1621489946814,"version":0},"$loki":48},{"type":"heading","childIds":[73],"$loki":72,"meta":{"revision":1,"created":1621490116947,"version":0,"updated":1621490116947},"depth":2,"parentId":50},{"type":"text","value":"another item","parentId":72,"meta":{"revision":0,"created":1621490116947,"version":0},"$loki":73},{"type":"html","parentId":118,"childIds":[],"meta":{"revision":0,"created":1621549338471,"version":0},"$loki":126},{"type":"list","childIds":[130,131],"$loki":127,"meta":{"revision":1,"created":1621549344739,"version":0,"updated":1621549344760},"parentId":118},{"type":"html","parentId":118,"childIds":[],"meta":{"revision":0,"created":1621549344739,"version":0},"$loki":128},{"type":"html","parentId":118,"childIds":[],"meta":{"revision":0,"created":1621549344739,"version":0},"$loki":129},{"type":"listItem","childIds":[132],"checked":null,"$loki":130,"meta":{"revision":2,"created":1621549344740,"version":0,"updated":1621549344760},"parentId":127,"tags":["test"],"children":[{"type":"paragraph","childIds":[134],"$loki":132,"meta":{"revision":1,"created":1621549344740,"version":0,"updated":1621549344759},"parentId":130,"children":[{"type":"text","value":"a list item #test","parentId":132,"meta":{"revision":0,"created":1621549344741,"version":0},"$loki":134}]}]},{"type":"listItem","childIds":[133],"checked":null,"$loki":131,"meta":{"revision":2,"created":1621549344740,"version":0,"updated":1621549344760},"parentId":127,"tags":["test"],"children":[{"type":"paragraph","childIds":[135],"$loki":133,"meta":{"revision":1,"created":1621549344740,"version":0,"updated":1621549344759},"parentId":131,"children":[{"type":"text","value":"a list item #test","parentId":133,"meta":{"revision":0,"created":1621549344741,"version":0},"$loki":135}]}]},{"type":"paragraph","childIds":[134],"$loki":132,"meta":{"revision":1,"created":1621549344740,"version":0,"updated":1621549344759},"parentId":130,"children":[{"type":"text","value":"a list item #test","parentId":132,"meta":{"revision":0,"created":1621549344741,"version":0},"$loki":134}]},{"type":"paragraph","childIds":[135],"$loki":133,"meta":{"revision":1,"created":1621549344740,"version":0,"updated":1621549344759},"parentId":131,"children":[{"type":"text","value":"a list item #test","parentId":133,"meta":{"revision":0,"created":1621549344741,"version":0},"$loki":135}]},{"type":"text","value":"a list item #test","parentId":132,"meta":{"revision":0,"created":1621549344741,"version":0},"$loki":134},{"type":"text","value":"a list item #test","parentId":133,"meta":{"revision":0,"created":1621549344741,"version":0},"$loki":135},{"type":"paragraph","childIds":[138],"$loki":136,"meta":{"revision":1,"created":1621549365772,"version":0,"updated":1621549365777},"parentId":10},{"type":"text","value":"some paragraph","parentId":136,"meta":{"revision":0,"created":1621549365772,"version":0},"$loki":138},{"type":"list","childIds":[181,182,183,184,185],"$loki":180,"meta":{"revision":1,"created":1621549388481,"version":0,"updated":1621549388491},"parentId":10},{"type":"listItem","childIds":[186],"checked":null,"$loki":181,"meta":{"revision":2,"created":1621549388481,"version":0,"updated":1621549388490},"parentId":180,"tags":["test"]},{"type":"listItem","childIds":[187],"checked":null,"$loki":182,"meta":{"revision":1,"created":1621549388481,"version":0,"updated":1621549388490},"parentId":180},{"type":"listItem","childIds":[188,189],"checked":null,"$loki":183,"meta":{"revision":1,"created":1621549388481,"version":0,"updated":1621549388491},"parentId":180},{"type":"listItem","childIds":[190],"checked":null,"$loki":184,"meta":{"revision":1,"created":1621549388481,"version":0,"updated":1621549388490},"parentId":180},{"type":"listItem","childIds":[191],"checked":null,"$loki":185,"meta":{"revision":1,"created":1621549388481,"version":0,"updated":1621549388490},"parentId":180},{"type":"paragraph","childIds":[192],"$loki":186,"meta":{"revision":1,"created":1621549388481,"version":0,"updated":1621549388490},"parentId":181},{"type":"paragraph","childIds":[193],"$loki":187,"meta":{"revision":1,"created":1621549388481,"version":0,"updated":1621549388489},"parentId":182},{"type":"paragraph","childIds":[194],"$loki":188,"meta":{"revision":1,"created":1621549388481,"version":0,"updated":1621549388489},"parentId":183},{"type":"list","childIds":[195],"$loki":189,"meta":{"revision":1,"created":1621549388481,"version":0,"updated":1621549388491},"parentId":183},{"type":"paragraph","childIds":[196],"$loki":190,"meta":{"revision":1,"created":1621549388481,"version":0,"updated":1621549388489},"parentId":184},{"type":"paragraph","childIds":[197],"$loki":191,"meta":{"revision":1,"created":1621549388481,"version":0,"updated":1621549388489},"parentId":185},{"type":"text","value":"a list item #test","parentId":186,"meta":{"revision":0,"created":1621549388482,"version":0},"$loki":192},{"type":"text","value":"another","parentId":187,"meta":{"revision":0,"created":1621549388482,"version":0},"$loki":193},{"type":"text","value":"xyz","parentId":188,"meta":{"revision":0,"created":1621549388482,"version":0},"$loki":194},{"type":"listItem","childIds":[198,199],"checked":null,"$loki":195,"meta":{"revision":1,"created":1621549388482,"version":0,"updated":1621549388490},"parentId":189},{"type":"text","value":"pqr","parentId":190,"meta":{"revision":0,"created":1621549388482,"version":0},"$loki":196},{"type":"text","value":"sty","parentId":191,"meta":{"revision":0,"created":1621549388482,"version":0},"$loki":197},{"type":"paragraph","childIds":[200],"$loki":198,"meta":{"revision":1,"created":1621549388482,"version":0,"updated":1621549388490},"parentId":195},{"type":"list","childIds":[201],"$loki":199,"meta":{"revision":1,"created":1621549388482,"version":0,"updated":1621549388490},"parentId":195},{"type":"text","value":"asdf","parentId":198,"meta":{"revision":0,"created":1621549388482,"version":0},"$loki":200},{"type":"listItem","childIds":[202],"checked":null,"$loki":201,"meta":{"revision":1,"created":1621549388482,"version":0,"updated":1621549388490},"parentId":199},{"type":"paragraph","childIds":[203],"$loki":202,"meta":{"revision":1,"created":1621549388483,"version":0,"updated":1621549388490},"parentId":201},{"type":"text","value":"def","parentId":202,"meta":{"revision":0,"created":1621549388483,"version":0},"$loki":203},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621549535153,"version":0},"$loki":220},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621549535153,"version":0},"$loki":221},{"type":"paragraph","childIds":[223],"$loki":222,"meta":{"revision":1,"created":1621549539923,"version":0,"updated":1621549539934},"parentId":10},{"type":"text","value":"asds","parentId":222,"meta":{"revision":0,"created":1621549539923,"version":0},"$loki":223},{"type":"paragraph","childIds":[225],"$loki":224,"meta":{"revision":1,"created":1621549559143,"version":0,"updated":1621549559146},"parentId":10},{"type":"text","value":"asds","parentId":224,"meta":{"revision":0,"created":1621549559143,"version":0},"$loki":225},{"type":"paragraph","childIds":[227],"$loki":226,"meta":{"revision":1,"created":1621549559235,"version":0,"updated":1621549559236},"parentId":10},{"type":"text","value":"asds","parentId":226,"meta":{"revision":0,"created":1621549559235,"version":0},"$loki":227},{"type":"paragraph","childIds":[229],"$loki":228,"meta":{"revision":1,"created":1621549605055,"version":0,"updated":1621549605058},"parentId":10},{"type":"text","value":"asds","parentId":228,"meta":{"revision":0,"created":1621549605055,"version":0},"$loki":229},{"type":"paragraph","childIds":[231],"$loki":230,"meta":{"revision":1,"created":1621549607415,"version":0,"updated":1621549607416},"parentId":10},{"type":"text","value":"asds","parentId":230,"meta":{"revision":0,"created":1621549607415,"version":0},"$loki":231},{"type":"paragraph","childIds":[233],"$loki":232,"meta":{"revision":1,"created":1621549664000,"version":0,"updated":1621549664004},"parentId":10},{"type":"text","value":"asds","parentId":232,"meta":{"revision":0,"created":1621549664001,"version":0},"$loki":233},{"type":"paragraph","childIds":[235],"$loki":234,"meta":{"revision":1,"created":1621549753889,"version":0,"updated":1621549753893},"parentId":10},{"type":"text","value":"asds","parentId":234,"meta":{"revision":0,"created":1621549753890,"version":0},"$loki":235},{"type":"paragraph","childIds":[237],"$loki":236,"meta":{"revision":1,"created":1621549814795,"version":0,"updated":1621549814798},"parentId":10},{"type":"text","value":"asds","parentId":236,"meta":{"revision":0,"created":1621549814795,"version":0},"$loki":237},{"type":"paragraph","childIds":[239],"$loki":238,"meta":{"revision":1,"created":1621549853956,"version":0,"updated":1621549853959},"parentId":10},{"type":"text","value":"asds","parentId":238,"meta":{"revision":0,"created":1621549853956,"version":0},"$loki":239},{"type":"paragraph","childIds":[241],"$loki":240,"meta":{"revision":1,"created":1621550011147,"version":0,"updated":1621550011150},"parentId":10},{"type":"text","value":"asds","parentId":240,"meta":{"revision":0,"created":1621550011147,"version":0},"$loki":241},{"type":"paragraph","childIds":[243],"$loki":242,"meta":{"revision":1,"created":1621550018606,"version":0,"updated":1621550018607},"parentId":10},{"type":"text","value":"some","parentId":242,"meta":{"revision":0,"created":1621550018606,"version":0},"$loki":243},{"type":"list","childIds":[245],"$loki":244,"meta":{"revision":1,"created":1621550067895,"version":0,"updated":1621550067897},"parentId":10},{"type":"listItem","childIds":[246,247],"checked":null,"$loki":245,"meta":{"revision":1,"created":1621550067895,"version":0,"updated":1621550067897},"parentId":244},{"type":"paragraph","childIds":[248],"$loki":246,"meta":{"revision":1,"created":1621550067895,"version":0,"updated":1621550067896},"parentId":245},{"type":"list","childIds":[249],"$loki":247,"meta":{"revision":1,"created":1621550067895,"version":0,"updated":1621550067897},"parentId":245},{"type":"text","value":"sine","parentId":246,"meta":{"revision":0,"created":1621550067895,"version":0},"$loki":248},{"type":"listItem","childIds":[250],"checked":null,"$loki":249,"meta":{"revision":1,"created":1621550067895,"version":0,"updated":1621550067897},"parentId":247},{"type":"paragraph","childIds":[251],"$loki":250,"meta":{"revision":1,"created":1621550067895,"version":0,"updated":1621550067896},"parentId":249},{"type":"text","value":"asd","parentId":250,"meta":{"revision":0,"created":1621550067895,"version":0},"$loki":251},{"type":"paragraph","childIds":[253],"$loki":252,"meta":{"revision":1,"created":1621550112333,"version":0,"updated":1621550112334},"parentId":10},{"type":"text","value":"sdfsd","parentId":252,"meta":{"revision":0,"created":1621550112333,"version":0},"$loki":253},{"type":"list","childIds":[268,269,270,271],"$loki":267,"meta":{"revision":1,"created":1621550234579,"version":0,"updated":1621550234592},"parentId":10},{"type":"listItem","childIds":[272],"checked":null,"$loki":268,"meta":{"revision":1,"created":1621550234579,"version":0,"updated":1621550234591},"parentId":267},{"type":"listItem","childIds":[273],"checked":null,"$loki":269,"meta":{"revision":1,"created":1621550234579,"version":0,"updated":1621550234591},"parentId":267},{"type":"listItem","childIds":[274],"checked":null,"$loki":270,"meta":{"revision":1,"created":1621550234580,"version":0,"updated":1621550234591},"parentId":267},{"type":"listItem","childIds":[275],"checked":null,"$loki":271,"meta":{"revision":1,"created":1621550234580,"version":0,"updated":1621550234591},"parentId":267},{"type":"paragraph","childIds":[276],"$loki":272,"meta":{"revision":1,"created":1621550234580,"version":0,"updated":1621550234589},"parentId":268},{"type":"paragraph","childIds":[277],"$loki":273,"meta":{"revision":1,"created":1621550234580,"version":0,"updated":1621550234589},"parentId":269},{"type":"paragraph","childIds":[278],"$loki":274,"meta":{"revision":1,"created":1621550234580,"version":0,"updated":1621550234589},"parentId":270},{"type":"paragraph","childIds":[279],"$loki":275,"meta":{"revision":1,"created":1621550234580,"version":0,"updated":1621550234589},"parentId":271},{"type":"text","value":"asdfasdfs","parentId":272,"meta":{"revision":0,"created":1621550234580,"version":0},"$loki":276},{"type":"text","value":"asfsdf","parentId":273,"meta":{"revision":0,"created":1621550234580,"version":0},"$loki":277},{"type":"text","value":"asdfads","parentId":274,"meta":{"revision":0,"created":1621550234580,"version":0},"$loki":278},{"type":"text","value":"sdfasdf","parentId":275,"meta":{"revision":0,"created":1621550234580,"version":0},"$loki":279},{"type":"list","childIds":[282],"$loki":281,"meta":{"revision":1,"created":1621550251407,"version":0,"updated":1621550251408},"parentId":10},{"type":"listItem","childIds":[283],"checked":null,"$loki":282,"meta":{"revision":1,"created":1621550251407,"version":0,"updated":1621550251408},"parentId":281},{"type":"paragraph","childIds":[284],"$loki":283,"meta":{"revision":1,"created":1621550251407,"version":0,"updated":1621550251408},"parentId":282},{"type":"text","value":"sdfsdf","parentId":283,"meta":{"revision":0,"created":1621550251407,"version":0},"$loki":284},{"type":"list","childIds":[286],"$loki":285,"meta":{"revision":1,"created":1621550262587,"version":0,"updated":1621550262591},"parentId":10},{"type":"listItem","childIds":[287],"checked":null,"$loki":286,"meta":{"revision":1,"created":1621550262587,"version":0,"updated":1621550262591},"parentId":285},{"type":"paragraph","childIds":[288],"$loki":287,"meta":{"revision":1,"created":1621550262587,"version":0,"updated":1621550262591},"parentId":286},{"type":"text","value":"asfd","parentId":287,"meta":{"revision":0,"created":1621550262587,"version":0},"$loki":288},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550288109,"version":0},"$loki":292},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550289215,"version":0},"$loki":293},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550289215,"version":0},"$loki":294},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550289215,"version":0},"$loki":295},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550289215,"version":0},"$loki":296},{"type":"paragraph","childIds":[298],"$loki":297,"meta":{"revision":1,"created":1621550289215,"version":0,"updated":1621550289218},"parentId":10},{"type":"text","value":"asdf","parentId":297,"meta":{"revision":0,"created":1621550289215,"version":0},"$loki":298},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550290339,"version":0},"$loki":299},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550290339,"version":0},"$loki":300},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550290339,"version":0},"$loki":301},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550290339,"version":0},"$loki":302},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550290339,"version":0},"$loki":303},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550290339,"version":0},"$loki":304},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550290339,"version":0},"$loki":305},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550290339,"version":0},"$loki":306},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550290339,"version":0},"$loki":307},{"type":"html","parentId":10,"childIds":[],"meta":{"revision":0,"created":1621550290339,"version":0},"$loki":308},{"type":"paragraph","childIds":[310],"$loki":309,"meta":{"revision":1,"created":1621550290339,"version":0,"updated":1621550290346},"parentId":10},{"type":"text","value":"asdf","parentId":309,"meta":{"revision":0,"created":1621550290340,"version":0},"$loki":310},{"type":"paragraph","childIds":[312],"$loki":311,"meta":{"revision":1,"created":1621550305149,"version":0,"updated":1621550305151},"parentId":10},{"type":"text","value":"asdf","parentId":311,"meta":{"revision":0,"created":1621550305149,"version":0},"$loki":312},{"type":"paragraph","childIds":[315],"$loki":313,"meta":{"revision":1,"created":1621551248608,"version":0,"updated":1621551248612},"parentId":10},{"type":"text","value":"asdfasdf","parentId":313,"meta":{"revision":0,"created":1621551248608,"version":0},"$loki":315},{"type":"paragraph","childIds":[332],"$loki":331,"meta":{"revision":1,"created":1621551399655,"version":0,"updated":1621551399657},"parentId":10},{"type":"text","value":"a new paragraph\nsecond line","parentId":331,"meta":{"revision":0,"created":1621551399656,"version":0},"$loki":332},{"type":"paragraph","childIds":[334],"$loki":333,"meta":{"revision":1,"created":1621551404993,"version":0,"updated":1621551404995},"parentId":10},{"type":"text","value":"another para","parentId":333,"meta":{"revision":0,"created":1621551404993,"version":0},"$loki":334},{"type":"list","childIds":[336],"$loki":335,"meta":{"revision":1,"created":1621551434188,"version":0,"updated":1621551434192},"parentId":10},{"type":"listItem","childIds":[337,338],"checked":null,"$loki":336,"meta":{"revision":1,"created":1621551434188,"version":0,"updated":1621551434192},"parentId":335},{"type":"paragraph","childIds":[339],"$loki":337,"meta":{"revision":1,"created":1621551434188,"version":0,"updated":1621551434192},"parentId":336},{"type":"list","childIds":[340],"$loki":338,"meta":{"revision":1,"created":1621551434188,"version":0,"updated":1621551434192},"parentId":336},{"type":"text","value":"a list","parentId":337,"meta":{"revision":0,"created":1621551434188,"version":0},"$loki":339},{"type":"listItem","childIds":[341],"checked":null,"$loki":340,"meta":{"revision":1,"created":1621551434188,"version":0,"updated":1621551434192},"parentId":338},{"type":"paragraph","childIds":[342],"$loki":341,"meta":{"revision":1,"created":1621551434189,"version":0,"updated":1621551434192},"parentId":340},{"type":"text","value":"check list","parentId":341,"meta":{"revision":0,"created":1621551434189,"version":0},"$loki":342}],"idIndex":[1,2,3,8,9,10,15,16,17,18,19,20,21,23,27,29,40,41,42,43,44,45,46,48,72,73,126,127,128,129,130,131,132,133,134,135,136,138,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,267,268,269,270,271,272,273,274,275,276,277,278,279,281,282,283,284,285,286,287,288,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,311,312,313,315,331,332,333,334,335,336,337,338,339,340,341,342],"binaryIndices":{},"constraints":null,"uniqueNames":[],"transforms":{},"objType":"nodes","dirty":false,"cachedIndex":null,"cachedBinaryIndex":null,"cachedData":null,"adaptiveBinaryIndices":true,"transactional":false,"cloneObjects":false,"cloneMethod":"parse-stringify","asyncListeners":false,"disableMeta":false,"disableChangesApi":true,"disableDeltaChangesApi":true,"autoupdate":false,"serializableIndices":true,"disableFreeze":true,"ttl":null,"maxId":342,"DynamicViews":[],"events":{"insert":[],"update":[],"pre-insert":[],"pre-update":[],"close":[],"flushbuffer":[],"error":[],"delete":[null],"warning":[null]},"changes":[],"dirtyIds":[]},{"name":"tags","data":[{"name":"up","references":[2,42],"queries":[],"meta":{"revision":3,"created":1621376515842,"version":0,"updated":1621489687610},"$loki":1},{"name":"test","references":[130,131,169,170,181],"queries":[],"meta":{"revision":28,"created":1621544566667,"version":0,"updated":1621551390620},"$loki":4}],"idIndex":null,"binaryIndices":{"name":{"name":"name","dirty":false,"values":[1,0]}},"constraints":null,"uniqueNames":[],"transforms":{},"objType":"tags","dirty":false,"cachedIndex":null,"cachedBinaryIndex":null,"cachedData":null,"adaptiveBinaryIndices":true,"transactional":false,"cloneObjects":false,"cloneMethod":"parse-stringify","asyncListeners":false,"disableMeta":false,"disableChangesApi":true,"disableDeltaChangesApi":true,"autoupdate":false,"serializableIndices":true,"disableFreeze":true,"ttl":null,"maxId":4,"DynamicViews":[],"events":{"insert":[],"update":[],"pre-insert":[],"pre-update":[],"close":[],"flushbuffer":[],"error":[],"delete":[null],"warning":[null]},"changes":[],"dirtyIds":[]},{"name":"queries","data":[{"include":["up"],"exclude":[],"results":null,"node":3,"meta":{"revision":0,"created":1621376515848,"version":0},"$loki":1},{"include":["up"],"exclude":[],"results":null,"node":12,"meta":{"revision":0,"created":1621489050016,"version":0},"$loki":2},{"include":["test"],"exclude":[],"results":null,"node":37,"meta":{"revision":0,"created":1621489469057,"version":0},"$loki":3},{"include":["up"],"exclude":[],"results":null,"node":43,"meta":{"revision":0,"created":1621489687612,"version":0},"$loki":4},{"include":["test"],"exclude":[],"results":null,"node":56,"meta":{"revision":0,"created":1621489946818,"version":0},"$loki":5},{"include":["test"],"exclude":[],"results":null,"node":61,"meta":{"revision":0,"created":1621490105499,"version":0},"$loki":6},{"include":["test"],"exclude":[],"results":null,"node":118,"meta":{"revision":0,"created":1621549295657,"version":0},"$loki":7},{"include":["test"],"exclude":[],"results":null,"node":157,"meta":{"revision":0,"created":1621549365778,"version":0},"$loki":8},{"include":["test"],"exclude":[],"results":null,"node":210,"meta":{"revision":0,"created":1621549467447,"version":0},"$loki":9},{"$loki":10,"include":["test"],"exclude":[],"results":null,"node":204,"meta":{"revision":4,"created":1621549469355,"version":0,"updated":1621550234591}},{"include":["test"],"exclude":[],"results":null,"node":214,"meta":{"revision":0,"created":1621549501451,"version":0},"$loki":11}],"idIndex":null,"binaryIndices":{},"constraints":null,"uniqueNames":[],"transforms":{},"objType":"queries","dirty":false,"cachedIndex":null,"cachedBinaryIndex":null,"cachedData":null,"adaptiveBinaryIndices":true,"transactional":false,"cloneObjects":false,"cloneMethod":"parse-stringify","asyncListeners":false,"disableMeta":false,"disableChangesApi":true,"disableDeltaChangesApi":true,"autoupdate":false,"serializableIndices":true,"disableFreeze":true,"ttl":null,"maxId":11,"DynamicViews":[],"events":{"insert":[],"update":[],"pre-insert":[],"pre-update":[],"close":[],"flushbuffer":[],"error":[],"delete":[null],"warning":[null]},"changes":[],"dirtyIds":[]}],"databaseVersion":1.5,"engineVersion":1.5,"autosave":true,"autosaveInterval":4000,"autosaveHandle":null,"throttledSaves":true,"options":{"autoload":true,"autosave":true,"autosaveInterval":4000,"serializationMethod":"normal","destructureDelimiter":"$<\n","recursiveWait":true,"recursiveWaitLimit":false,"recursiveWaitLimitDuration":2000,"started":1621551434183},"persistenceMethod":"fs","persistenceAdapter":null,"verbose":false,"events":{"init":[null],"loaded":[],"flushChanges":[],"close":[],"changes":[],"warning":[]},"ENV":"NODEJS"}
+{
+  "filename": "q3.json",
+  "collections": [
+    {
+      "name": "nodes",
+      "data": [
+        {
+          "type": "root",
+          "childIds": [2],
+          "filePath": "/Users/vamshi/Dropbox/life/test.md",
+          "$loki": 1,
+          "meta": { "revision": 1, "created": 1621606113595, "version": 0, "updated": 1621606113601 }
+        },
+        {
+          "type": "list",
+          "childIds": [3],
+          "$loki": 2,
+          "meta": { "revision": 1, "created": 1621606113595, "version": 0, "updated": 1621606113601 },
+          "parentId": 1,
+          "spread": false
+        },
+        {
+          "type": "listItem",
+          "spread": false,
+          "childIds": [4, 5],
+          "checked": null,
+          "$loki": 3,
+          "meta": { "revision": 1, "created": 1621606113595, "version": 0, "updated": 1621606113601 },
+          "parentId": 2
+        },
+        {
+          "type": "paragraph",
+          "childIds": [6],
+          "$loki": 4,
+          "meta": { "revision": 1, "created": 1621606113595, "version": 0, "updated": 1621606113600 },
+          "parentId": 3
+        },
+        {
+          "type": "list",
+          "childIds": [7, 8, 9],
+          "$loki": 5,
+          "meta": { "revision": 1, "created": 1621606113595, "version": 0, "updated": 1621606113601 },
+          "parentId": 3,
+          "spread": false
+        },
+        {
+          "type": "text",
+          "value": "list 1",
+          "parentId": 4,
+          "meta": { "revision": 0, "created": 1621606113595, "version": 0 },
+          "$loki": 6
+        },
+        {
+          "type": "listItem",
+          "spread": false,
+          "childIds": [10],
+          "checked": null,
+          "$loki": 7,
+          "meta": { "revision": 2, "created": 1621606113595, "version": 0, "updated": 1621606113601 },
+          "parentId": 5,
+          "tags": ["tag2"]
+        },
+        {
+          "type": "listItem",
+          "spread": false,
+          "childIds": [11, 12],
+          "checked": null,
+          "$loki": 8,
+          "meta": { "revision": 2, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+          "parentId": 5,
+          "tags": ["tag2"],
+          "children": [
+            {
+              "type": "paragraph",
+              "childIds": [15],
+              "$loki": 11,
+              "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+              "parentId": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "chidl2 #tag2",
+                  "parentId": 11,
+                  "meta": { "revision": 0, "created": 1621606113596, "version": 0 },
+                  "$loki": 15
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "childIds": [16],
+              "$loki": 12,
+              "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+              "parentId": 8,
+              "spread": false,
+              "children": [
+                {
+                  "type": "listItem",
+                  "spread": false,
+                  "childIds": [18],
+                  "checked": null,
+                  "$loki": 16,
+                  "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+                  "parentId": 12,
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "childIds": [19],
+                      "$loki": 18,
+                      "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+                      "parentId": 16,
+                      "children": [
+                        {
+                          "type": "text",
+                          "value": "child4",
+                          "parentId": 18,
+                          "meta": { "revision": 0, "created": 1621606113596, "version": 0 },
+                          "$loki": 19
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "spread": false,
+          "childIds": [13],
+          "checked": null,
+          "$loki": 9,
+          "meta": { "revision": 2, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+          "parentId": 5,
+          "queryId": 1
+        },
+        {
+          "type": "paragraph",
+          "childIds": [14],
+          "$loki": 10,
+          "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+          "parentId": 7
+        },
+        {
+          "type": "paragraph",
+          "childIds": [15],
+          "$loki": 11,
+          "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+          "parentId": 8,
+          "children": [
+            {
+              "type": "text",
+              "value": "chidl2 #tag2",
+              "parentId": 11,
+              "meta": { "revision": 0, "created": 1621606113596, "version": 0 },
+              "$loki": 15
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "childIds": [16],
+          "$loki": 12,
+          "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+          "parentId": 8,
+          "spread": false,
+          "children": [
+            {
+              "type": "listItem",
+              "spread": false,
+              "childIds": [18],
+              "checked": null,
+              "$loki": 16,
+              "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+              "parentId": 12,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "childIds": [19],
+                  "$loki": 18,
+                  "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+                  "parentId": 16,
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "child4",
+                      "parentId": 18,
+                      "meta": { "revision": 0, "created": 1621606113596, "version": 0 },
+                      "$loki": 19
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "childIds": [17],
+          "$loki": 13,
+          "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+          "parentId": 9
+        },
+        {
+          "type": "text",
+          "value": "child 1 #tag2",
+          "parentId": 10,
+          "meta": { "revision": 0, "created": 1621606113596, "version": 0 },
+          "$loki": 14
+        },
+        {
+          "type": "text",
+          "value": "chidl2 #tag2",
+          "parentId": 11,
+          "meta": { "revision": 0, "created": 1621606113596, "version": 0 },
+          "$loki": 15
+        },
+        {
+          "type": "listItem",
+          "spread": false,
+          "childIds": [18],
+          "checked": null,
+          "$loki": 16,
+          "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+          "parentId": 12,
+          "children": [
+            {
+              "type": "paragraph",
+              "childIds": [19],
+              "$loki": 18,
+              "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+              "parentId": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "child4",
+                  "parentId": 18,
+                  "meta": { "revision": 0, "created": 1621606113596, "version": 0 },
+                  "$loki": 19
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "value": "abcde +tag2",
+          "parentId": 13,
+          "meta": { "revision": 0, "created": 1621606113596, "version": 0 },
+          "$loki": 17
+        },
+        {
+          "type": "paragraph",
+          "childIds": [19],
+          "$loki": 18,
+          "meta": { "revision": 1, "created": 1621606113596, "version": 0, "updated": 1621606113601 },
+          "parentId": 16,
+          "children": [
+            {
+              "type": "text",
+              "value": "child4",
+              "parentId": 18,
+              "meta": { "revision": 0, "created": 1621606113596, "version": 0 },
+              "$loki": 19
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "value": "child4",
+          "parentId": 18,
+          "meta": { "revision": 0, "created": 1621606113596, "version": 0 },
+          "$loki": 19
+        }
+      ],
+      "idIndex": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+      "binaryIndices": {},
+      "constraints": null,
+      "uniqueNames": [],
+      "transforms": {},
+      "objType": "nodes",
+      "dirty": false,
+      "cachedIndex": null,
+      "cachedBinaryIndex": null,
+      "cachedData": null,
+      "adaptiveBinaryIndices": true,
+      "transactional": false,
+      "cloneObjects": false,
+      "cloneMethod": "parse-stringify",
+      "asyncListeners": false,
+      "disableMeta": false,
+      "disableChangesApi": true,
+      "disableDeltaChangesApi": true,
+      "autoupdate": false,
+      "serializableIndices": true,
+      "disableFreeze": true,
+      "ttl": null,
+      "maxId": 19,
+      "DynamicViews": [],
+      "events": {
+        "insert": [],
+        "update": [],
+        "pre-insert": [],
+        "pre-update": [],
+        "close": [],
+        "flushbuffer": [],
+        "error": [],
+        "delete": [null],
+        "warning": [null]
+      },
+      "changes": [],
+      "dirtyIds": []
+    },
+    {
+      "name": "tags",
+      "data": [
+        {
+          "name": "tag2",
+          "references": [7],
+          "queries": [],
+          "meta": { "revision": 0, "created": 1621606113600, "version": 0 },
+          "$loki": 1
+        },
+        {
+          "name": "tag2",
+          "references": [8],
+          "queries": [],
+          "meta": { "revision": 0, "created": 1621606113600, "version": 0 },
+          "$loki": 2
+        }
+      ],
+      "idIndex": null,
+      "binaryIndices": { "name": { "name": "name", "dirty": false, "values": [1, 0] } },
+      "constraints": null,
+      "uniqueNames": [],
+      "transforms": {},
+      "objType": "tags",
+      "dirty": false,
+      "cachedIndex": null,
+      "cachedBinaryIndex": null,
+      "cachedData": null,
+      "adaptiveBinaryIndices": true,
+      "transactional": false,
+      "cloneObjects": false,
+      "cloneMethod": "parse-stringify",
+      "asyncListeners": false,
+      "disableMeta": false,
+      "disableChangesApi": true,
+      "disableDeltaChangesApi": true,
+      "autoupdate": false,
+      "serializableIndices": true,
+      "disableFreeze": true,
+      "ttl": null,
+      "maxId": 2,
+      "DynamicViews": [],
+      "events": {
+        "insert": [],
+        "update": [],
+        "pre-insert": [],
+        "pre-update": [],
+        "close": [],
+        "flushbuffer": [],
+        "error": [],
+        "delete": [null],
+        "warning": [null]
+      },
+      "changes": [],
+      "dirtyIds": []
+    },
+    {
+      "name": "queries",
+      "data": [
+        {
+          "include": ["tag2"],
+          "exclude": [],
+          "results": null,
+          "node": 9,
+          "meta": { "revision": 0, "created": 1621606113600, "version": 0 },
+          "$loki": 1
+        }
+      ],
+      "idIndex": null,
+      "binaryIndices": {},
+      "constraints": null,
+      "uniqueNames": [],
+      "transforms": {},
+      "objType": "queries",
+      "dirty": false,
+      "cachedIndex": null,
+      "cachedBinaryIndex": null,
+      "cachedData": null,
+      "adaptiveBinaryIndices": true,
+      "transactional": false,
+      "cloneObjects": false,
+      "cloneMethod": "parse-stringify",
+      "asyncListeners": false,
+      "disableMeta": false,
+      "disableChangesApi": true,
+      "disableDeltaChangesApi": true,
+      "autoupdate": false,
+      "serializableIndices": true,
+      "disableFreeze": true,
+      "ttl": null,
+      "maxId": 1,
+      "DynamicViews": [],
+      "events": {
+        "insert": [],
+        "update": [],
+        "pre-insert": [],
+        "pre-update": [],
+        "close": [],
+        "flushbuffer": [],
+        "error": [],
+        "delete": [null],
+        "warning": [null]
+      },
+      "changes": [],
+      "dirtyIds": []
+    }
+  ],
+  "databaseVersion": 1.5,
+  "engineVersion": 1.5,
+  "autosave": true,
+  "autosaveInterval": 4000,
+  "autosaveHandle": null,
+  "throttledSaves": true,
+  "options": {
+    "autoload": true,
+    "autosave": true,
+    "autosaveInterval": 4000,
+    "serializationMethod": "normal",
+    "destructureDelimiter": "$<\n",
+    "recursiveWait": true,
+    "recursiveWaitLimit": false,
+    "recursiveWaitLimitDuration": 2000,
+    "started": 1621606113591
+  },
+  "persistenceMethod": "fs",
+  "persistenceAdapter": null,
+  "verbose": false,
+  "events": { "init": [null], "loaded": [], "flushChanges": [], "close": [], "changes": [], "warning": [] },
+  "ENV": "NODEJS"
+}

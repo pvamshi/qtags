@@ -109,7 +109,7 @@ async function start() {
       file.contents = file
         .toString()
         .replace(/\\/g, '')
-        .replace(/\n<!---->\n\n/g, ''); // <!----> happens when query added in header
+        .replace(/\n\s*\<!----\>\n\n/g, '\n'); // <!----> happens when query added in header
       vfile.writeSync(file);
       ignoreFiles.unshift(filePath);
       console.timeEnd(a);
@@ -257,3 +257,25 @@ async function deleteNode(nodeID: ID) {
   }
   await deleteNodeFromDB(node);
 }
+
+// async function runSeq<T, U>(fn: (arg: T) => Promise<U>, data: T[]): Promise<U[]> {
+//   return data.reduce(async (a, c) => {
+//     const res = await a;
+//     res.push(await fn(c))
+//   }, []);
+// }
+// runSeq(async (a) => a + 1, [2, 3, 4]).then((v) => console.log(v));
+
+const a =
+  (xx: number) =>
+  async (res: number[]): Promise<number[]> =>
+    res.concat([xx + 3]);
+
+const a1 = a(1);
+const a2 = a(2);
+const a3 = a(3);
+const ax = a1([]);
+a1([])
+  .then((re: number[]) => a2(re))
+  .then((re: number[]) => a3(re))
+  .then(console.log);

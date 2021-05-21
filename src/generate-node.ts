@@ -22,11 +22,17 @@ export function generateAddNode(
         type: 'listItem',
         ordered: node.ordered,
         checked: node.checked,
+        spread: node.spread,
       };
     case 'heading':
       return {
         type: 'heading',
         depth: node.depth,
+      };
+    case 'list':
+      return {
+        type: 'list',
+        spread: node.spread,
       };
     case 'root':
       return {
@@ -55,6 +61,7 @@ export function generateUpdateNode(node: NodeDB): NodeDB {
     case 'listItem':
       return {
         type: 'listItem',
+        spread: node.spread,
         childIds: node.childIds,
         ordered: node.ordered,
         checked: node.checked,
@@ -91,7 +98,14 @@ export function generateUpdateNode(node: NodeDB): NodeDB {
         queryId: node.queryId,
         tags: node.tags,
       };
+    default:
+      return {
+        type: node.type,
+        childIds: node.childIds,
+        $loki: node.$loki,
+        meta: node.meta,
+        parentId: node.parentId,
+        spread: node.spread,
+      };
   }
-  node;
-  return { type: node.type, childIds: node.childIds, $loki: node.$loki, meta: node.meta, parentId: node.parentId };
 }

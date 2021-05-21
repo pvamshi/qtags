@@ -23,18 +23,21 @@ export interface Paragraph {
 export type ParagraphDB = { type: 'paragraph'; childIds: ID[]; queryId?: ID; tags?: string[] } & DBData;
 export interface List {
   type: 'list';
+  spread?: boolean;
   children: ListItem[];
 }
-export type ListDB = { type: 'list'; childIds: ID[] } & DBData;
+export type ListDB = { type: 'list'; spread?: boolean; childIds: ID[] } & DBData;
 export interface ListItem {
   type: 'listItem';
   children: (Paragraph | List)[];
+  spread?: boolean;
   checked: boolean | null;
   ordered: boolean;
 }
 export type ListItemDB = {
   type: 'listItem';
   checked: boolean;
+  spread?: boolean;
   ordered: boolean;
   childIds: ID[];
   tags?: string[];

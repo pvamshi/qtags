@@ -103,7 +103,6 @@ async function addTags(node: NodeDB) {
         tags.map((t) => addTag(t, grandParent && grandParent.type === 'listItem' ? grandParent : parent)),
       );
 
-      console.log('sss', await getNodeFromDB(parent.$loki));
       // add queries
       const query = plugins
         .map((p) => p['generateQueries'])
