@@ -2,6 +2,7 @@ import { getNodeFromDB } from './db';
 import { addQuery, getResults } from './queries';
 import { addTag, deleteTagsForNode } from './tags';
 import { ID, List, ListItem, ListItemDB, Node, NodeDB, Paragraph, ParagraphDB, QueryTags, TextDB } from './types';
+import { runSerial } from './utils';
 
 export interface Plugin {
   name: string;
@@ -99,8 +100,8 @@ async function addTags(node: NodeDB) {
         .map((p) => p['generateTags'])
         .filter(isDefined)
         .flatMap((f) => f(text));
-      await Promise.all(
-        tags.map((t) => addTag(t, grandParent && grandParent.type === 'listItem' ? grandParent : parent)),
+      await runSerial(
+        tags.map(async (t) => await addTag(t, grandParent && grandParent.type === 'listItem' ? grandParent : parent)),
       );
 
       // add queries

@@ -28,5 +28,8 @@
 //   return node.children || node.childIds.length === 0 ? [] : node.childIds.map(db.getNode);
 // }
 
-export const runSerial = <U>(a: ((arg: U) => Promise<U>)[], init: U) =>
+export const runSerialReduce = <U>(a: ((arg: U) => Promise<U>)[], init: U) =>
   a.reduce<Promise<U>>((f1: Promise<U>, f2: (res: U) => Promise<U>) => f1.then(f2), Promise.resolve(init));
+
+export const runSerial = (a: Promise<any>[]) =>
+  a.reduce<Promise<any>>((f1: Promise<any>, f2: Promise<any>) => f1.then(() => f2), Promise.resolve(undefined));

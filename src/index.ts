@@ -6,7 +6,7 @@ import { diffTree } from './diff-tree';
 import { generateAddNode } from './generate-node';
 import { isDefined, plugins } from './plugins';
 import { FullNode, ID, ListItem, ListItemDB, Node, NodeDB, Paragraph, ParagraphDB, Root, TextDB } from './types';
-import { runSerial } from './utils';
+import { runSerialReduce, runSerial } from './utils';
 
 var vfile = require('to-vfile');
 // const jsonfile = require('jsonfile');
@@ -229,7 +229,7 @@ async function addNode(node: Node, parentId?: ID): Promise<NodeDB> {
       : ({ ...generateAddNode(node), parentId, childIds: [] } as Exclude<TextDB, NodeDB>);
   const addedNode = (await addNodeToDB(generateNode)) as NodeDB;
   if (addedNode.type !== 'text' && node.type !== 'text' && node.children) {
-    addedNode.childIds = await runSerial<ID[]>(
+    addedNode.childIds = await runSerialReduce<ID[]>(
       node.children.map((c) => async (n) => n.concat((await addNode(c, addedNode.$loki)).$loki)),
       [],
     );
