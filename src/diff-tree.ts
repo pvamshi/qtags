@@ -1,6 +1,7 @@
 import { getNodeFromDB } from './db';
 import { FullNode, ID, isLeaf, Node, NodeDB, TextDB } from './types';
-import { toHash } from './utils';
+import { runSerialReduce, toHash } from './utils';
+import { runSerial } from 'src/utils';
 
 function toString(node: Node): string {
   if (!node) {
@@ -54,7 +55,7 @@ export async function diffTree(
     deleteNode,
     updateNode,
   }: {
-    addNode: (node: Node, parentId: ID | undefined) => Promise<NodeDB>;
+    addNode: (node: Node, parentId: ID | undefined) => Promise<NodeDB | null>;
     updateNode: (node: NodeDB) => Promise<NodeDB>;
     deleteNode: (nodeId: ID) => void;
   },
@@ -71,10 +72,10 @@ export async function diffTree(
       await deleteNode(oldNode.$loki);
       const addedNode = await addNode(newNode, parentId);
       const oldIndex = parentNode.childIds.findIndex((idx) => idx === oldNode.$loki);
-      if (oldIndex === -1) {
+      if (oldIndex === -1 && addedNode !== null) {
         parentNode.childIds.push(addedNode.$loki);
       }
-      parentNode.childIds[oldIndex] = addedNode.$loki;
+      if (addedNode) parentNode.childIds[oldIndex] = addedNode.$loki;
       await updateNode(parentNode);
     }
   } else if (oldNode?.type !== 'text' && newNode.type !== 'text') {
@@ -83,24 +84,27 @@ export async function diffTree(
     const oldhashStrings = oldNode.children.map((child: FullNode) => toString(child as Node));
     const { additions, deletions } = diffChildren(newhashStrings, oldhashStrings);
     deletions.forEach(async (index: number) => deleteNode(oldNode.children[index].$loki));
-    const children = await Promise.all(
-      newNode.children.map(async (child: Node, index: number) => {
+    const children = await runSerialReduce(
+      newNode.children.map((child: Node, index: number) => async (childrenCollect: NodeDB[]) => {
         if (additions.includes(index)) {
-          return await addNode(newNode.children[index], oldNode.$loki);
+          const addedNode = await addNode(newNode.children[index], oldNode.$loki);
+          if (addedNode !== null) childrenCollect.push(addedNode);
         } else if (newhashStrings[index] === oldhashStrings[index]) {
           await diffTree(oldNode.children[index], oldNode.$loki, child, { addNode, updateNode, deleteNode });
-          return oldNode.children[index];
+          childrenCollect.push(oldNode.children[index]);
         } else {
           const indexInOld = oldhashStrings.findIndex((hash) => hash === newhashStrings[index]);
           if (indexInOld !== -1) {
             await diffTree(oldNode.children[indexInOld], oldNode.$loki, child, { addNode, updateNode, deleteNode });
-            return oldNode.children[indexInOld];
+            childrenCollect.push(oldNode.children[indexInOld]);
           } else {
             await diffTree(oldNode.children[index], oldNode.$loki, child, { addNode, updateNode, deleteNode });
-            return oldNode.children[index];
+            childrenCollect.push(oldNode.children[index]);
           }
         }
+        return childrenCollect;
       }),
+      [],
     );
     // oldNode.childIds =
     if (additions.length > 0 || deletions.length > 0) {

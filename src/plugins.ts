@@ -1,7 +1,7 @@
 import { getNodeFromDB } from './db';
 import { addQuery, getResults } from './queries';
 import { addTag, deleteTagsForNode } from './tags';
-import { ID, List, ListItem, ListItemDB, Node, NodeDB, Paragraph, ParagraphDB, QueryTags, TextDB } from './types';
+import { ID, ListItem, ListItemDB, Node, NodeDB, Paragraph, ParagraphDB, QueryTags, TextDB } from './types';
 import { runSerial } from './utils';
 
 export interface Plugin {
@@ -19,6 +19,8 @@ export interface Plugin {
   postBuildChildParagraph?: (node: Paragraph & ParagraphDB) => Promise<Node[]>;
   postBuildChildListItem?: (node: ListItem & ListItemDB) => Promise<Node[]>;
   postBuild?: (node: NodeDB) => void;
+  transformQueryResults?: (results: (Node & NodeDB)[]) => void;
+  ignoreNode?: (node: Node) => boolean;
 }
 
 export const plugins: Plugin[] = [
@@ -42,7 +44,12 @@ export const plugins: Plugin[] = [
     postBuildChildParagraph: async (node: Paragraph & ParagraphDB): Promise<Node[]> => {
       if (node.type === 'paragraph' && node.queryId) {
         const res = await getResults(node.queryId);
-        return await Promise.all(res.map(getNodes));
+        const results = await Promise.all(res.map(getNodes));
+        plugins
+          .map((p) => p['transformQueryResults'])
+          .filter(isDefined)
+          .forEach((transform) => transform(results));
+        return results;
       }
       return [];
     },
@@ -50,6 +57,25 @@ export const plugins: Plugin[] = [
   {
     name: 'query-results-child-listitem',
     postBuildChildListItem: getQueryResultsForListItem,
+  },
+  {
+    name: 'add query results marker',
+    transformQueryResults: addMarkerToResult,
+  },
+  {
+    name: 'ignore result node',
+    ignoreNode: (node: Node) => {
+      if (node.type === 'listItem' && node.children[0].type === 'paragraph') {
+        const paragraph = node.children[0];
+        if (paragraph.children[paragraph.children.length - 1]?.value.endsWith('·')) {
+          return true;
+        }
+        return false;
+      } else if (node.type === 'paragraph' && node.children[node.children.length - 1]?.value.endsWith('·')) {
+        return true;
+      }
+      return false;
+    },
   },
 ];
 
@@ -64,7 +90,13 @@ async function getNodes(nodeId: ID) {
 async function getQueryResultsForListItem(node: ListItemDB): Promise<Node[]> {
   if (node.type === 'listItem' && node.queryId) {
     const res = await getResults(node.queryId);
-    return await Promise.all(res.map(getNodes));
+    const results = await Promise.all(res.map(getNodes));
+
+    plugins
+      .map((p) => p['transformQueryResults'])
+      .filter(isDefined)
+      .forEach((transform) => transform(results));
+    return results;
   }
   return [];
 }
@@ -173,51 +205,60 @@ async function getTextForParagraph(paragraph: ParagraphDB): Promise<string> {
   return texts.map((t) => t.value).join('');
 }
 
-function getMetadata(text: string) {
-  const queryResponseRegexp = /𖥔|·$/;
-  const hashTagRegexp = /(\s|^)#([a-zA-Z0-9-_.]+)/g;
-  const queryRegexp = /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g;
-  if (text.match(queryResponseRegexp)) {
-    // query
-  }
-  const hashTagMatches = text.matchAll(hashTagRegexp);
-  const tags = [];
-  for (const match of hashTagMatches) {
-    const tag = match[2];
-    tags.push(tag);
-  }
-}
-async function getNodeMeta(node: NodeDB) {
-  const queryResponseRegexp = /𖥔|·$/;
-  const hashTagRegexp = /(\s|^)#([a-zA-Z0-9-_.]+)/g;
-  const queryRegexp = /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g;
+// function getMetadata(text: string) {
+//   const queryResponseRegexp = /𖥔|·$/;
+//   const hashTagRegexp = /(\s|^)#([a-zA-Z0-9-_.]+)/g;
+//   const queryRegexp = /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g;
+//   if (text.match(queryResponseRegexp)) {
+//     // query
+//   }
+//   const hashTagMatches = text.matchAll(hashTagRegexp);
+//   const tags = [];
+//   for (const match of hashTagMatches) {
+//     const tag = match[2];
+//     tags.push(tag);
+//   }
+// }
+// async function getNodeMeta(node: NodeDB) {
+//   const queryResponseRegexp = /𖥔|·$/;
+//   const hashTagRegexp = /(\s|^)#([a-zA-Z0-9-_.]+)/g;
+//   const queryRegexp = /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g;
 
-  const text = nodes.map((n: any) => n.value).join('');
-  if (text.match(queryResponseRegexp)) {
-    return { ignore: true };
-  }
+//   const text = nodes.map((n: any) => n.value).join('');
+//   if (text.match(queryResponseRegexp)) {
+//     return { ignore: true };
+//   }
 
-  const hashTagMatches = text.matchAll(hashTagRegexp);
-  const tags = [];
-  for (const match of hashTagMatches) {
-    const tag = match[2];
-    tags.push(tag);
-  }
-  if (tags.length > 0) {
-    return { tags: plugins.filter((p) => p.parse).reduce((tags, { parse }) => parse(tags), tags) };
-  }
+//   const hashTagMatches = text.matchAll(hashTagRegexp);
+//   const tags = [];
+//   for (const match of hashTagMatches) {
+//     const tag = match[2];
+//     tags.push(tag);
+//   }
+//   if (tags.length > 0) {
+//     return { tags: plugins.filter((p) => p.parse).reduce((tags, { parse }) => parse(tags), tags) };
+//   }
 
-  const queryTagMatches = text.matchAll(queryRegexp);
-  const queryTags: { include: string[]; exclude: string[] } = { include: [], exclude: [] };
+//   const queryTagMatches = text.matchAll(queryRegexp);
+//   const queryTags: { include: string[]; exclude: string[] } = { include: [], exclude: [] };
 
-  for (const match of queryTagMatches) {
-    if (match[2] === '+') {
-      queryTags.include.push(match[3]);
-    } else {
-      queryTags.exclude.push(match[3]);
+//   for (const match of queryTagMatches) {
+//     if (match[2] === '+') {
+//       queryTags.include.push(match[3]);
+//     } else {
+//       queryTags.exclude.push(match[3]);
+//     }
+//   }
+//   if (queryTags.include.length > 0 || queryTags.exclude.length > 0) {
+//     return { query: queryTags };
+//   }
+// }
+function addMarkerToResult(results: (Node & NodeDB)[]) {
+  results.forEach((result) => {
+    if (result.type === 'paragraph') {
+      result.children.push({ type: 'text', value: '·' });
+    } else if (result.type === 'listItem' && result.children.length > 0 && result.children[0].type === 'paragraph') {
+      result.children[0].children.push({ type: 'text', value: ' ·' });
     }
-  }
-  if (queryTags.include.length > 0 || queryTags.exclude.length > 0) {
-    return { query: queryTags };
-  }
+  });
 }

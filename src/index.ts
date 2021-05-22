@@ -215,7 +215,12 @@ async function updateNode(node: NodeDB): Promise<NodeDB> {
   return updatedNode;
 }
 
-async function addNode(node: Node, parentId?: ID): Promise<NodeDB> {
+async function addNode(node: Node, parentId?: ID): Promise<NodeDB | null> {
+  const ignore = plugins
+    .map((p) => p['ignoreNode'])
+    .filter(isDefined)
+    .reduce((a, p) => p(node) || a, false);
+  if (ignore) return null;
   await Promise.all(
     plugins
       .map((p) => p['preAdd'])
@@ -230,7 +235,10 @@ async function addNode(node: Node, parentId?: ID): Promise<NodeDB> {
   const addedNode = (await addNodeToDB(generateNode)) as NodeDB;
   if (addedNode.type !== 'text' && node.type !== 'text' && node.children) {
     addedNode.childIds = await runSerialReduce<ID[]>(
-      node.children.map((c) => async (n) => n.concat((await addNode(c, addedNode.$loki)).$loki)),
+      node.children.map((c) => async (n) => {
+        const addedNewNode = await addNode(c, addedNode.$loki);
+        return addedNewNode !== null ? n.concat(addedNewNode.$loki) : n;
+      }),
       [],
     );
     updateNodeToDB(addedNode);
