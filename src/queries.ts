@@ -14,7 +14,7 @@ import { toHash } from './utils';
 
 const queryToHash = (query: QueryTags): string =>
   toHash(query.include.sort().join(';') + query.exclude.sort().join(':'));
-// query should have multiple references , we should not duplicate
+
 export async function addQuery(query: QueryTags, node: ParagraphDB | ListItemDB): Promise<QueryDB | null> {
   if (query.include.length === 0) {
     return null;
@@ -22,7 +22,7 @@ export async function addQuery(query: QueryTags, node: ParagraphDB | ListItemDB)
   const hash = queryToHash(query);
   const existingQuery = await searchForQuery(hash);
   if (existingQuery) {
-    return updateQueryInDB({
+    updateQueryInDB({
       $loki: existingQuery.$loki,
       ...query,
       results: existingQuery.results,
@@ -31,6 +31,9 @@ export async function addQuery(query: QueryTags, node: ParagraphDB | ListItemDB)
       hash,
       references: (existingQuery.references || []).concat(node.$loki),
     });
+    node.queryId = existingQuery.$loki;
+    await updateNodeToDB(node);
+    return existingQuery;
   }
   const queryAdded = await addQueryToDB({ ...query, hash, results: null, node: node.$loki, references: [node.$loki] });
   node.queryId = queryAdded.$loki;

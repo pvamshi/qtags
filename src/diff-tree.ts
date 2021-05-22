@@ -1,7 +1,19 @@
 import { getNodeFromDB } from './db';
 import { FullNode, ID, isLeaf, Node, NodeDB, TextDB } from './types';
 import { runSerialReduce, toHash } from './utils';
-import { runSerial } from 'src/utils';
+
+function ignoreQueryResult(node: Node) {
+  if (node.type === 'listItem' && node.children[0].type === 'paragraph') {
+    const paragraph = node.children[0];
+    if (paragraph.children[paragraph.children.length - 1]?.value.endsWith('·')) {
+      return true;
+    }
+    return false;
+  } else if (node.type === 'paragraph' && node.children[node.children.length - 1]?.value.endsWith('·')) {
+    return true;
+  }
+  return false;
+}
 
 function toString(node: Node): string {
   if (!node) {
@@ -64,12 +76,12 @@ export async function diffTree(
     await addNode(newNode, parentId);
   } else if (oldNode !== undefined && oldNode.type !== newNode.type) {
     await addNode(newNode, parentId);
-    await deleteNode(oldNode.$loki);
+    deleteNode(oldNode.$loki);
   } else if (oldNode.type === 'text' && newNode.type === 'text') {
     // update if different
     if (oldNode.value !== newNode.value && parentId) {
       const parentNode = (await getNodeFromDB(parentId)) as Exclude<NodeDB, TextDB>;
-      await deleteNode(oldNode.$loki);
+      deleteNode(oldNode.$loki);
       const addedNode = await addNode(newNode, parentId);
       const oldIndex = parentNode.childIds.findIndex((idx) => idx === oldNode.$loki);
       if (oldIndex === -1 && addedNode !== null) {
@@ -86,6 +98,9 @@ export async function diffTree(
     deletions.forEach(async (index: number) => deleteNode(oldNode.children[index].$loki));
     const children = await runSerialReduce(
       newNode.children.map((child: Node, index: number) => async (childrenCollect: NodeDB[]) => {
+        if (ignoreQueryResult(child)) {
+          return childrenCollect; // if query result encountered with query, delete them
+        }
         if (additions.includes(index)) {
           const addedNode = await addNode(newNode.children[index], oldNode.$loki);
           if (addedNode !== null) childrenCollect.push(addedNode);
