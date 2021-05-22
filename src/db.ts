@@ -103,6 +103,12 @@ export async function getQueryFromDB(queryId: ID): Promise<QueryDB | null> {
   return queries!.findOne({ $loki: queryId });
 }
 
+export async function searchForQuery(hash: string) {
+  if (!queries) {
+    await initDB();
+  }
+  return queries!.findOne({ hash });
+}
 export async function updateQueryInDB(query: QueryDB) {
   if (!queries) {
     await initDB();

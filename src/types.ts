@@ -76,6 +76,8 @@ export interface Query {
   include: string[];
   exclude: string[];
   results: ID[] | null;
+  references: ID[] | null;
+  hash: string;
   node: ID;
 }
 export type QueryTags = Pick<Query, 'include' | 'exclude'>;

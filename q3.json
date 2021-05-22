@@ -1,1 +1,260 @@
-{"filename":"q3.json","collections":[{"name":"nodes","data":[{"type":"root","childIds":[2],"filePath":"/Users/vamshi/Dropbox/life/test1.md","$loki":1,"meta":{"revision":2,"created":1621640639221,"version":0,"updated":1621640674402}},{"type":"list","childIds":[3],"$loki":2,"meta":{"revision":1,"created":1621640674397,"version":0,"updated":1621640674402},"parentId":1,"spread":false},{"type":"listItem","spread":false,"childIds":[4,33],"checked":null,"$loki":3,"meta":{"revision":3,"created":1621640674397,"version":0,"updated":1621640836471},"parentId":2},{"type":"paragraph","childIds":[5],"$loki":4,"meta":{"revision":1,"created":1621640674397,"version":0,"updated":1621640674398},"parentId":3},{"type":"text","value":"list 1","parentId":4,"meta":{"revision":0,"created":1621640674397,"version":0},"$loki":5},{"type":"list","childIds":[34,37,40],"$loki":33,"meta":{"revision":1,"created":1621640836469,"version":0,"updated":1621640836471},"parentId":3,"spread":false},{"type":"listItem","spread":false,"childIds":[35],"checked":null,"$loki":34,"meta":{"revision":2,"created":1621640836470,"version":0,"updated":1621640836470},"parentId":33,"tags":["tag1"]},{"type":"paragraph","childIds":[36],"$loki":35,"meta":{"revision":1,"created":1621640836470,"version":0,"updated":1621640836470},"parentId":34},{"type":"text","value":"child 1 #tag1","parentId":35,"meta":{"revision":0,"created":1621640836470,"version":0},"$loki":36},{"type":"listItem","spread":false,"childIds":[38,45],"checked":null,"$loki":37,"meta":{"revision":7,"created":1621640836470,"version":0,"updated":1621640985845},"parentId":33,"tags":["tag3"]},{"type":"paragraph","childIds":[44],"$loki":38,"meta":{"revision":3,"created":1621640836470,"version":0,"updated":1621640942469},"parentId":37},{"type":"listItem","spread":false,"childIds":[41],"checked":null,"$loki":40,"meta":{"revision":3,"created":1621640836470,"version":0,"updated":1621640985844},"parentId":33,"queryId":2},{"type":"paragraph","childIds":[49],"$loki":41,"meta":{"revision":2,"created":1621640836470,"version":0,"updated":1621640985845},"parentId":40},{"type":"text","value":"child 2 #tag3","parentId":38,"meta":{"revision":0,"created":1621640942469,"version":0},"$loki":44},{"type":"list","childIds":[46],"$loki":45,"meta":{"revision":1,"created":1621640985844,"version":0,"updated":1621640985845},"parentId":37,"spread":false},{"type":"listItem","spread":false,"childIds":[47],"checked":null,"$loki":46,"meta":{"revision":2,"created":1621640985844,"version":0,"updated":1621640985845},"parentId":45,"tags":["tag2"],"children":[{"type":"paragraph","childIds":[48],"$loki":47,"meta":{"revision":1,"created":1621640985844,"version":0,"updated":1621640985845},"parentId":46,"children":[{"type":"text","value":"grand #tag2","parentId":47,"meta":{"revision":0,"created":1621640985844,"version":0},"$loki":48}]}]},{"type":"paragraph","childIds":[48],"$loki":47,"meta":{"revision":1,"created":1621640985844,"version":0,"updated":1621640985845},"parentId":46,"children":[{"type":"text","value":"grand #tag2","parentId":47,"meta":{"revision":0,"created":1621640985844,"version":0},"$loki":48}]},{"type":"text","value":"grand #tag2","parentId":47,"meta":{"revision":0,"created":1621640985844,"version":0},"$loki":48},{"type":"text","value":"child 3 +tag3 +tag2","parentId":41,"meta":{"revision":0,"created":1621640985845,"version":0},"$loki":49}],"idIndex":[1,2,3,4,5,33,34,35,36,37,38,40,41,44,45,46,47,48,49],"binaryIndices":{},"constraints":null,"uniqueNames":[],"transforms":{},"objType":"nodes","dirty":false,"cachedIndex":null,"cachedBinaryIndex":null,"cachedData":null,"adaptiveBinaryIndices":true,"transactional":false,"cloneObjects":false,"cloneMethod":"parse-stringify","asyncListeners":false,"disableMeta":false,"disableChangesApi":true,"disableDeltaChangesApi":true,"autoupdate":false,"serializableIndices":true,"disableFreeze":true,"ttl":null,"maxId":49,"DynamicViews":[],"events":{"insert":[],"update":[],"pre-insert":[],"pre-update":[],"close":[],"flushbuffer":[],"error":[],"delete":[null],"warning":[null]},"changes":[],"dirtyIds":[]},{"name":"tags","data":[{"name":"tag1","references":[7,23,34],"queries":[],"meta":{"revision":14,"created":1621640674399,"version":0,"updated":1621640924872},"$loki":1},{"name":"tag3","references":[37],"queries":[],"meta":{"revision":0,"created":1621640942469,"version":0},"$loki":4},{"name":"tag2","references":[46],"queries":[],"meta":{"revision":0,"created":1621640985845,"version":0},"$loki":5}],"idIndex":[1,4,5],"binaryIndices":{"name":{"name":"name","dirty":false,"values":[0,2,1]}},"constraints":null,"uniqueNames":[],"transforms":{},"objType":"tags","dirty":false,"cachedIndex":null,"cachedBinaryIndex":null,"cachedData":null,"adaptiveBinaryIndices":true,"transactional":false,"cloneObjects":false,"cloneMethod":"parse-stringify","asyncListeners":false,"disableMeta":false,"disableChangesApi":true,"disableDeltaChangesApi":true,"autoupdate":false,"serializableIndices":true,"disableFreeze":true,"ttl":null,"maxId":5,"DynamicViews":[],"events":{"insert":[],"update":[],"pre-insert":[],"pre-update":[],"close":[],"flushbuffer":[],"error":[],"delete":[null],"warning":[null]},"changes":[],"dirtyIds":[]},{"name":"queries","data":[{"include":["tag1"],"exclude":[],"results":null,"node":17,"meta":{"revision":0,"created":1621640674401,"version":0},"$loki":1},{"$loki":2,"include":["tag3","tag2"],"exclude":[],"results":null,"node":40,"meta":{"revision":1,"created":1621640836471,"version":0,"updated":1621640985845}}],"idIndex":[1,2],"binaryIndices":{},"constraints":null,"uniqueNames":[],"transforms":{},"objType":"queries","dirty":false,"cachedIndex":null,"cachedBinaryIndex":null,"cachedData":null,"adaptiveBinaryIndices":true,"transactional":false,"cloneObjects":false,"cloneMethod":"parse-stringify","asyncListeners":false,"disableMeta":false,"disableChangesApi":true,"disableDeltaChangesApi":true,"autoupdate":false,"serializableIndices":true,"disableFreeze":true,"ttl":null,"maxId":2,"DynamicViews":[],"events":{"insert":[],"update":[],"pre-insert":[],"pre-update":[],"close":[],"flushbuffer":[],"error":[],"delete":[null],"warning":[null]},"changes":[],"dirtyIds":[]}],"databaseVersion":1.5,"engineVersion":1.5,"autosave":true,"autosaveInterval":4000,"autosaveHandle":null,"throttledSaves":true,"options":{"autoload":true,"autosave":true,"autosaveInterval":4000,"serializationMethod":"normal","destructureDelimiter":"$<\n","recursiveWait":true,"recursiveWaitLimit":false,"recursiveWaitLimitDuration":2000,"started":1621640639218},"persistenceMethod":"fs","persistenceAdapter":null,"verbose":false,"events":{"init":[null],"loaded":[],"flushChanges":[],"close":[],"changes":[],"warning":[]},"ENV":"NODEJS"}
+{
+  "filename": "q3.json",
+  "collections": [
+    {
+      "name": "nodes",
+      "data": [
+        {
+          "type": "root",
+          "childIds": [2],
+          "filePath": "/Users/vamshi/Dropbox/life/test.md",
+          "$loki": 1,
+          "meta": { "revision": 1, "created": 1621687658406, "version": 0, "updated": 1621687658410 }
+        },
+        {
+          "type": "list",
+          "childIds": [3, 6],
+          "$loki": 2,
+          "meta": { "revision": 1, "created": 1621687658406, "version": 0, "updated": 1621687658410 },
+          "parentId": 1,
+          "spread": false
+        },
+        {
+          "type": "listItem",
+          "spread": false,
+          "childIds": [4],
+          "checked": null,
+          "$loki": 3,
+          "meta": { "revision": 2, "created": 1621687658406, "version": 0, "updated": 1621687658409 },
+          "parentId": 2,
+          "tags": ["tag11"],
+          "children": [
+            {
+              "type": "paragraph",
+              "childIds": [5],
+              "$loki": 4,
+              "meta": { "revision": 1, "created": 1621687658406, "version": 0, "updated": 1621687658409 },
+              "parentId": 3,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "list 1 #tag11",
+                  "parentId": 4,
+                  "meta": { "revision": 0, "created": 1621687658406, "version": 0 },
+                  "$loki": 5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "childIds": [5],
+          "$loki": 4,
+          "meta": { "revision": 1, "created": 1621687658406, "version": 0, "updated": 1621687658409 },
+          "parentId": 3,
+          "children": [
+            {
+              "type": "text",
+              "value": "list 1 #tag11",
+              "parentId": 4,
+              "meta": { "revision": 0, "created": 1621687658406, "version": 0 },
+              "$loki": 5
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "value": "list 1 #tag11",
+          "parentId": 4,
+          "meta": { "revision": 0, "created": 1621687658406, "version": 0 },
+          "$loki": 5
+        },
+        {
+          "type": "listItem",
+          "spread": false,
+          "childIds": [7],
+          "checked": null,
+          "$loki": 6,
+          "meta": { "revision": 2, "created": 1621687658409, "version": 0, "updated": 1621687658410 },
+          "parentId": 2,
+          "queryId": 1
+        },
+        {
+          "type": "paragraph",
+          "childIds": [8],
+          "$loki": 7,
+          "meta": { "revision": 1, "created": 1621687658409, "version": 0, "updated": 1621687658410 },
+          "parentId": 6
+        },
+        {
+          "type": "text",
+          "value": "list 2 +tag11",
+          "parentId": 7,
+          "meta": { "revision": 0, "created": 1621687658409, "version": 0 },
+          "$loki": 8
+        }
+      ],
+      "idIndex": [1, 2, 3, 4, 5, 6, 7, 8],
+      "binaryIndices": {},
+      "constraints": null,
+      "uniqueNames": [],
+      "transforms": {},
+      "objType": "nodes",
+      "dirty": false,
+      "cachedIndex": null,
+      "cachedBinaryIndex": null,
+      "cachedData": null,
+      "adaptiveBinaryIndices": true,
+      "transactional": false,
+      "cloneObjects": false,
+      "cloneMethod": "parse-stringify",
+      "asyncListeners": false,
+      "disableMeta": false,
+      "disableChangesApi": true,
+      "disableDeltaChangesApi": true,
+      "autoupdate": false,
+      "serializableIndices": true,
+      "disableFreeze": true,
+      "ttl": null,
+      "maxId": 8,
+      "DynamicViews": [],
+      "events": {
+        "insert": [],
+        "update": [],
+        "pre-insert": [],
+        "pre-update": [],
+        "close": [],
+        "flushbuffer": [],
+        "error": [],
+        "delete": [null],
+        "warning": [null]
+      },
+      "changes": [],
+      "dirtyIds": []
+    },
+    {
+      "name": "tags",
+      "data": [
+        {
+          "name": "tag11",
+          "references": [3],
+          "queries": [],
+          "meta": { "revision": 0, "created": 1621687658409, "version": 0 },
+          "$loki": 1
+        }
+      ],
+      "idIndex": null,
+      "binaryIndices": { "name": { "name": "name", "dirty": false, "values": [0] } },
+      "constraints": null,
+      "uniqueNames": [],
+      "transforms": {},
+      "objType": "tags",
+      "dirty": false,
+      "cachedIndex": null,
+      "cachedBinaryIndex": null,
+      "cachedData": null,
+      "adaptiveBinaryIndices": true,
+      "transactional": false,
+      "cloneObjects": false,
+      "cloneMethod": "parse-stringify",
+      "asyncListeners": false,
+      "disableMeta": false,
+      "disableChangesApi": true,
+      "disableDeltaChangesApi": true,
+      "autoupdate": false,
+      "serializableIndices": true,
+      "disableFreeze": true,
+      "ttl": null,
+      "maxId": 1,
+      "DynamicViews": [],
+      "events": {
+        "insert": [],
+        "update": [],
+        "pre-insert": [],
+        "pre-update": [],
+        "close": [],
+        "flushbuffer": [],
+        "error": [],
+        "delete": [null],
+        "warning": [null]
+      },
+      "changes": [],
+      "dirtyIds": []
+    },
+    {
+      "name": "queries",
+      "data": [
+        {
+          "include": ["tag11"],
+          "exclude": [],
+          "hash": "3613260055928188",
+          "results": [3],
+          "node": 6,
+          "references": [6],
+          "meta": { "revision": 1, "created": 1621687658410, "version": 0, "updated": 1621687658412 },
+          "$loki": 1
+        }
+      ],
+      "idIndex": [1],
+      "binaryIndices": {},
+      "constraints": null,
+      "uniqueNames": [],
+      "transforms": {},
+      "objType": "queries",
+      "dirty": false,
+      "cachedIndex": null,
+      "cachedBinaryIndex": null,
+      "cachedData": null,
+      "adaptiveBinaryIndices": true,
+      "transactional": false,
+      "cloneObjects": false,
+      "cloneMethod": "parse-stringify",
+      "asyncListeners": false,
+      "disableMeta": false,
+      "disableChangesApi": true,
+      "disableDeltaChangesApi": true,
+      "autoupdate": false,
+      "serializableIndices": true,
+      "disableFreeze": true,
+      "ttl": null,
+      "maxId": 1,
+      "DynamicViews": [],
+      "events": {
+        "insert": [],
+        "update": [],
+        "pre-insert": [],
+        "pre-update": [],
+        "close": [],
+        "flushbuffer": [],
+        "error": [],
+        "delete": [null],
+        "warning": [null]
+      },
+      "changes": [],
+      "dirtyIds": []
+    }
+  ],
+  "databaseVersion": 1.5,
+  "engineVersion": 1.5,
+  "autosave": true,
+  "autosaveInterval": 4000,
+  "autosaveHandle": null,
+  "throttledSaves": true,
+  "options": {
+    "autoload": true,
+    "autosave": true,
+    "autosaveInterval": 4000,
+    "serializationMethod": "normal",
+    "destructureDelimiter": "$<\n",
+    "recursiveWait": true,
+    "recursiveWaitLimit": false,
+    "recursiveWaitLimitDuration": 2000,
+    "started": 1621687658401
+  },
+  "persistenceMethod": "fs",
+  "persistenceAdapter": null,
+  "verbose": false,
+  "events": { "init": [null], "loaded": [], "flushChanges": [], "close": [], "changes": [], "warning": [] },
+  "ENV": "NODEJS"
+}

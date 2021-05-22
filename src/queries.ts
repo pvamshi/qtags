@@ -4,28 +4,35 @@ import {
   getQueryForNode,
   getQueryFromDB,
   getTagFromDB,
+  searchForQuery,
   updateNodeToDB,
   updateQueryInDB,
 } from './db';
 import { isDefined } from './plugins';
-import { ID, ListItemDB, NodeDB, ParagraphDB, QueryDB, QueryTags } from './types';
+import { ID, ListItemDB, NodeDB, ParagraphDB, Query, QueryDB, QueryTags } from './types';
+import { toHash } from './utils';
 
+const queryToHash = (query: QueryTags): string =>
+  toHash(query.include.sort().join(';') + query.exclude.sort().join(':'));
 // query should have multiple references , we should not duplicate
 export async function addQuery(query: QueryTags, node: ParagraphDB | ListItemDB): Promise<QueryDB | null> {
   if (query.include.length === 0) {
     return null;
   }
-  const existingQuery = await getQueryForNode(node.$loki);
+  const hash = queryToHash(query);
+  const existingQuery = await searchForQuery(hash);
   if (existingQuery) {
     return updateQueryInDB({
       $loki: existingQuery.$loki,
       ...query,
-      results: null,
+      results: existingQuery.results,
       node: node.$loki,
       meta: existingQuery.meta,
+      hash,
+      references: (existingQuery.references || []).concat(node.$loki),
     });
   }
-  const queryAdded = await addQueryToDB({ ...query, results: null, node: node.$loki });
+  const queryAdded = await addQueryToDB({ ...query, hash, results: null, node: node.$loki, references: [node.$loki] });
   node.queryId = queryAdded.$loki;
   await updateNodeToDB(node);
   return queryAdded;
@@ -34,9 +41,10 @@ export async function addQuery(query: QueryTags, node: ParagraphDB | ListItemDB)
 export async function getResults(queryId: ID): Promise<ID[]> {
   const query = await getQueryFromDB(queryId);
   if (!query) return [];
+  if (query.results) return query.results;
   const includes = (await Promise.all(query.include.map((includeTag) => getTagFromDB(includeTag)))).filter(isDefined);
   const refs = includes.map((tagdb) => ({ name: tagdb.name, refs: tagdb.references })).filter((obj) => obj.refs);
-  return (
+  const results = (
     await Promise.all(
       refs.flatMap(async (ref) => {
         const nodes = await Promise.all(ref.refs.map((r) => getNodeFromDB(r)));
@@ -50,6 +58,9 @@ export async function getResults(queryId: ID): Promise<ID[]> {
       }),
     )
   ).flat();
+  query.results = results;
+  await updateQueryInDB(query);
+  return results;
 }
 
 function hasMatch(node: ListItemDB | ParagraphDB, query: QueryTags): boolean {
