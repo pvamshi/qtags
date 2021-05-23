@@ -50,7 +50,7 @@ export async function getResults(queryId: ID): Promise<ID[]> {
   const results = (
     await Promise.all(
       refs.flatMap(async (ref) => {
-        const nodes = await Promise.all(ref.refs.map((r) => getNodeFromDB(r)));
+        const nodes = (await Promise.all(ref.refs.map((r) => getNodeFromDB(r)))).filter(isDefined);
         return (
           await Promise.all(
             nodes.flatMap((node) =>
@@ -76,7 +76,7 @@ async function queryNodeForTags(node: NodeDB, query: QueryTags): Promise<ID[]> {
   const childNodes = await Promise.all(node.childIds.map((childId) => getNodeFromDB(childId)));
   return (
     await Promise.all(
-      childNodes.map(async (child) => {
+      childNodes.filter(isDefined).map(async (child) => {
         if ((child.type === 'paragraph' || child.type === 'listItem') && hasMatch(child, query) && child.tags) {
           query.include = query.include.filter((includeTag) => !child.tags?.includes(includeTag));
           if (query.include.length === 0) {

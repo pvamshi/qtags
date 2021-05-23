@@ -11,24 +11,26 @@ export async function addNodeToDB(node: NodeDB): Promise<NodeDB> {
   if (!nodes) {
     await initDB();
   }
-  console.log({ node });
   const addedNode = nodes!.insertOne(node);
   if (addedNode === undefined) {
     throw new Error('Error while adding node' + JSON.stringify(node));
   }
+  console.log({ node });
   return addedNode as NodeDB;
 }
 export async function updateNodeToDB(node: NodeDB): Promise<NodeDB> {
   if (!nodes) {
     await initDB();
   }
+  console.log('update', node);
   return nodes!.update(generateUpdateNode(node) as NodeDB);
 }
-export async function getNodeFromDB(nodeId: ID): Promise<NodeDB> {
+export async function getNodeFromDB(nodeId: ID): Promise<NodeDB | undefined> {
   if (!nodes) {
     await initDB();
   }
-  return nodes!.findOne({ $loki: nodeId }) as NodeDB;
+  const n = nodes!.findOne({ $loki: nodeId }) as NodeDB;
+  return n ? { ...n } : undefined;
 }
 
 export async function queryForNode<T>(query: LokiQuery<T>) {

@@ -33,6 +33,8 @@ export interface ListItem {
   spread?: boolean;
   checked: boolean | null;
   ordered: boolean;
+  tags?: string[];
+  queryId?: ID;
 }
 export type ListItemDB = {
   type: 'listItem';

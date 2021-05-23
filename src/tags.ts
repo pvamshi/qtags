@@ -1,4 +1,4 @@
-import { addTagToDB, deleteTag, getTagFromDB, getTagsForNode, updateNodeToDB, updateTag } from './db';
+import { addTagToDB, deleteTag, getNodeFromDB, getTagFromDB, getTagsForNode, updateNodeToDB, updateTag } from './db';
 import { ListItemDB, ParagraphDB, TagDB } from './types';
 
 export async function addTag(tagName: string, node: ParagraphDB | ListItemDB): Promise<TagDB> {
@@ -15,6 +15,7 @@ export async function addTag(tagName: string, node: ParagraphDB | ListItemDB): P
 
   node.tags = (node.tags || []).concat(tagName);
   await updateNodeToDB(node);
+  console.log('tt', await getNodeFromDB(node.$loki));
   return addTagToDB({ name: tagName, references: [node.$loki], queries: [] });
 }
 

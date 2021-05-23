@@ -235,14 +235,19 @@ async function addNode(node: Node, parentId?: ID): Promise<NodeDB | null> {
       : ({ ...generateAddNode(node), parentId, childIds: [] } as Exclude<TextDB, NodeDB>);
   const addedNode = (await addNodeToDB(generateNode)) as NodeDB;
   if (addedNode.type !== 'text' && node.type !== 'text' && node.children) {
-    addedNode.childIds = await runSerialReduce<ID[]>(
+    const childIds = await runSerialReduce<ID[]>(
       node.children.map((c) => async (n) => {
         const addedNewNode = await addNode(c, addedNode.$loki);
         return addedNewNode !== null ? n.concat(addedNewNode.$loki) : n;
       }),
       [],
     );
-    updateNodeToDB(addedNode);
+    const refreshedAddedNode = await getNodeFromDB(addedNode.$loki);
+    if (refreshedAddedNode !== undefined && refreshedAddedNode.type !== 'text') {
+      refreshedAddedNode.childIds = childIds;
+      console.log('about to update', refreshedAddedNode);
+      await updateNodeToDB(refreshedAddedNode);
+    }
   }
   await Promise.all(
     plugins
@@ -255,13 +260,16 @@ async function addNode(node: Node, parentId?: ID): Promise<NodeDB | null> {
 
 async function deleteNode(nodeID: ID) {
   const node = await getNodeFromDB(nodeID);
+  if (!node) {
+    return;
+  }
   await Promise.all(
     plugins
       .map((p) => p['preDelete'])
       .filter(isDefined)
       .map((p) => p(node)),
   );
-  if (node.type !== 'text') {
+  if (node && node.type !== 'text') {
     await Promise.all(node.childIds.map((id) => deleteNode(id)));
   }
   await deleteNodeFromDB(node);

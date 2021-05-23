@@ -23,6 +23,8 @@ export function generateAddNode(
         ordered: node.ordered,
         checked: node.checked,
         spread: node.spread,
+        tags: node.tags,
+        queryId: node.queryId,
       };
     case 'heading':
       return {

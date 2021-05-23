@@ -80,7 +80,7 @@ export const plugins: Plugin[] = [
 ];
 
 export async function getNodes(nodeId: ID) {
-  const node = (await getNodeFromDB(nodeId)) as Node & NodeDB;
+  const node = { ...(await getNodeFromDB(nodeId)) } as Node & NodeDB;
   if (!node || node.type === 'text') {
     return node;
   }
