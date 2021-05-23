@@ -11,6 +11,7 @@ export async function addNodeToDB(node: NodeDB): Promise<NodeDB> {
   if (!nodes) {
     await initDB();
   }
+  console.log({ node });
   const addedNode = nodes!.insertOne(node);
   if (addedNode === undefined) {
     throw new Error('Error while adding node' + JSON.stringify(node));

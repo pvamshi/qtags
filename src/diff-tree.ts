@@ -1,10 +1,8 @@
-import { ListItemLayout } from 'antd/lib/list';
-import { getNodeFromDB, getQueryFromDB, searchForQuery } from './db';
-import { plugins } from './plugins';
+import { deleteNodeFromDB, getNodeFromDB, getQueryFromDB, searchForQuery, updateNodeToDB } from './db';
+import { getNodes, plugins } from './plugins';
 import { FullNode, ID, isLeaf, Node, NodeDB, TextDB, ListItem, Paragraph, ListItemDB } from './types';
-import { runSerialReduce, toHash } from './utils';
-import { isDefined } from 'src/plugins';
-import { BackTopProps } from 'antd/lib/back-top';
+import { runSerial, runSerialReduce, toHash } from './utils';
+import { isDefined } from './plugins';
 
 function isQuery(node: ListItem | Paragraph, parent: Node) {
   if (parent.type === 'listItem') return false;
@@ -109,9 +107,9 @@ export async function diffTree(
     deletions.forEach(async (index: number) => deleteNode(oldNode.children[index].$loki));
     const children = await runSerialReduce(
       newNode.children.map((child: Node, index: number) => async (childrenCollect: NodeDB[]) => {
-        // if (ignoreQueryResult(child)) {
-        //   return childrenCollect; // if query result encountered with query, delete them
-        // }
+        if (ignoreQueryResult(child)) {
+          return childrenCollect; // if query result encountered with query, delete them
+        }
         if (additions.includes(index)) {
           const addedNode = await addNode(newNode.children[index], oldNode.$loki);
           if (addedNode !== null) childrenCollect.push(addedNode);
@@ -151,18 +149,16 @@ export async function diffTree(
                     if (searchResults) {
                       // just update them , they will be ignored when their chance comes
                       const res = child.children.slice(1, searchResults.length + 1);
-                      res.forEach((searchResult, idx) => {
-                        diffTree(
-                          oldNode.children[index].children[idx + 1],
-                          oldNode.children[index].$loki,
-                          searchResult,
-                          {
+                      runSerial(
+                        res.map(async (searchResult, idx) => {
+                          const targetId = searchResults[idx];
+                          await updateTarget((await getNodes(targetId)) as FullNode, searchResult.children[0], {
                             addNode,
                             updateNode,
                             deleteNode,
-                          },
-                        );
-                      });
+                          });
+                        }),
+                      );
                     }
                   }
                 }
@@ -182,5 +178,40 @@ export async function diffTree(
       await updateNode(oldNode);
     }
     //proceed to check children when its not addition
+  }
+}
+
+// handle update of checkbox for listitem
+async function updateTarget(
+  oldNode: FullNode,
+  newNode: Node,
+  funs: {
+    addNode: (node: Node, parentId: ID | undefined) => Promise<NodeDB | null>;
+    updateNode: (node: NodeDB) => Promise<NodeDB>;
+    deleteNode: (nodeId: ID) => void;
+  },
+) {
+  if (
+    newNode.type === 'paragraph' &&
+    oldNode.type === 'paragraph' &&
+    newNode.children.map((c) => c.value.replace(/·/, '').trim()).join('') !==
+      oldNode.children.map((c: any) => c.value).join('')
+  ) {
+    console.log('updating children for restults§');
+    oldNode.children.map((c) => deleteNodeFromDB(c));
+    oldNode.childIds = (
+      await runSerialReduce(
+        newNode.children.map((c) => async (result: NodeDB[]) => {
+          c.value = c.value.replace(/·/, '').trim();
+          result.push((await funs.addNode(c, oldNode.$loki)) as NodeDB);
+          return result;
+        }),
+        [],
+      )
+    ).map((n) => n.$loki);
+    funs.updateNode(oldNode);
+  }
+  if (newNode.type !== 'text' && oldNode.type !== 'text') {
+    runSerial(newNode.children.map(async (child, index) => await updateTarget(oldNode.children[index], child, funs)));
   }
 }
