@@ -1,7 +1,17 @@
-import { getNodeFromDB } from './db';
-import { FullNode, ID, isLeaf, Node, NodeDB, TextDB } from './types';
+import { ListItemLayout } from 'antd/lib/list';
+import { getNodeFromDB, getQueryFromDB, searchForQuery } from './db';
+import { plugins } from './plugins';
+import { FullNode, ID, isLeaf, Node, NodeDB, TextDB, ListItem, Paragraph, ListItemDB } from './types';
 import { runSerialReduce, toHash } from './utils';
+import { isDefined } from 'src/plugins';
+import { BackTopProps } from 'antd/lib/back-top';
 
+function isQuery(node: ListItem | Paragraph, parent: Node) {
+  if (parent.type === 'listItem') return false;
+  const paragraph = node.type === 'listItem' ? (node.children[0] as Paragraph) : node;
+  const text = paragraph.children.map((t) => t.value).join('');
+  return /(\s|^)(\+|-)([a-zA-Z0-9-_.]+)/g.test(text);
+}
 function ignoreQueryResult(node: Node) {
   if (node.type === 'listItem' && node.children[0].type === 'paragraph') {
     const paragraph = node.children[0];
@@ -71,6 +81,7 @@ export async function diffTree(
     updateNode: (node: NodeDB) => Promise<NodeDB>;
     deleteNode: (nodeId: ID) => void;
   },
+  queryResult?: boolean,
 ) {
   if (!oldNode) {
     await addNode(newNode, parentId);
@@ -98,23 +109,67 @@ export async function diffTree(
     deletions.forEach(async (index: number) => deleteNode(oldNode.children[index].$loki));
     const children = await runSerialReduce(
       newNode.children.map((child: Node, index: number) => async (childrenCollect: NodeDB[]) => {
-        if (ignoreQueryResult(child)) {
-          return childrenCollect; // if query result encountered with query, delete them
-        }
+        // if (ignoreQueryResult(child)) {
+        //   return childrenCollect; // if query result encountered with query, delete them
+        // }
         if (additions.includes(index)) {
           const addedNode = await addNode(newNode.children[index], oldNode.$loki);
           if (addedNode !== null) childrenCollect.push(addedNode);
-        } else if (newhashStrings[index] === oldhashStrings[index]) {
-          await diffTree(oldNode.children[index], oldNode.$loki, child, { addNode, updateNode, deleteNode });
-          childrenCollect.push(oldNode.children[index]);
         } else {
-          const indexInOld = oldhashStrings.findIndex((hash) => hash === newhashStrings[index]);
-          if (indexInOld !== -1) {
-            await diffTree(oldNode.children[indexInOld], oldNode.$loki, child, { addNode, updateNode, deleteNode });
-            childrenCollect.push(oldNode.children[indexInOld]);
-          } else {
+          if (newhashStrings[index] === oldhashStrings[index]) {
+            // this happens when the query is paragraph, we need to stop checking for next few items. very very tricky IMHO
+            if ((child.type === 'listItem' || child.type === 'paragraph') && isQuery(child, newNode)) {
+              // handle query the awesomeness happens here
+              console.log('query', child);
+              // handle paragraph
+              // handle list item
+            }
             await diffTree(oldNode.children[index], oldNode.$loki, child, { addNode, updateNode, deleteNode });
             childrenCollect.push(oldNode.children[index]);
+          } else {
+            const indexInOld = oldhashStrings.findIndex((hash) => hash === newhashStrings[index]);
+            if (indexInOld !== -1) {
+              // found an exact match, probably due to reshuffle
+              if ((child.type === 'listItem' || child.type === 'paragraph') && isQuery(child, newNode)) {
+                // handle query the awesomeness happens here
+                console.log('query', child);
+                // handle paragraph
+                // handle list item
+              }
+              await diffTree(oldNode.children[indexInOld], oldNode.$loki, child, { addNode, updateNode, deleteNode });
+              childrenCollect.push(oldNode.children[indexInOld]);
+            } else {
+              if ((child.type === 'listItem' || child.type === 'paragraph') && isQuery(child, newNode)) {
+                // handle query the awesomeness happens here
+                console.log('query', child);
+                // handle paragraph
+                // handle list item
+                if (child.type === 'listItem') {
+                  const queryId = (oldNode.children[index] as ListItemDB).queryId;
+                  if (queryId) {
+                    const searchResults = (await getQueryFromDB(queryId))?.results;
+                    if (searchResults) {
+                      // just update them , they will be ignored when their chance comes
+                      const res = child.children.slice(1, searchResults.length + 1);
+                      res.forEach((searchResult, idx) => {
+                        diffTree(
+                          oldNode.children[index].children[idx + 1],
+                          oldNode.children[index].$loki,
+                          searchResult,
+                          {
+                            addNode,
+                            updateNode,
+                            deleteNode,
+                          },
+                        );
+                      });
+                    }
+                  }
+                }
+              }
+              await diffTree(oldNode.children[index], oldNode.$loki, child, { addNode, updateNode, deleteNode });
+              childrenCollect.push(oldNode.children[index]);
+            }
           }
         }
         return childrenCollect;

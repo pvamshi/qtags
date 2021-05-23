@@ -111,7 +111,7 @@ export function runPlugin<T extends keyof Plugin>(fn: T): Plugin[T][] {
 }
 
 async function cleanUpTagsBeforeDelete(node: NodeDB) {
-  if (node.type === 'text') {
+  if (node?.type === 'text') {
     const parent = await getParent(node);
     if (parent && parent.type === 'paragraph') {
       const grandParent = await getParent(parent);

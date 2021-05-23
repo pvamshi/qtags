@@ -5,7 +5,7 @@ import { addNodeToDB, deleteNodeFromDB, getNodeFromDB, queryForNode, updateNodeT
 import { diffTree } from './diff-tree';
 import { generateAddNode } from './generate-node';
 import { isDefined, plugins } from './plugins';
-import { FullNode, ID, ListItem, ListItemDB, Node, NodeDB, Paragraph, ParagraphDB, Root, TextDB } from './types';
+import { FullNode, ID, List, ListItem, ListItemDB, Node, NodeDB, Paragraph, ParagraphDB, Root, TextDB } from './types';
 import { runSerialReduce, runSerial } from './utils';
 
 var vfile = require('to-vfile');
@@ -158,16 +158,17 @@ async function getNode(nodeId: ID): Promise<Node | undefined> {
                   .map((f) => f(child as ListItem & ListItemDB)),
               )
             ).flat() as ListItem[] | Paragraph[];
-            child.children = child.children.concat(
-              results.map((result) =>
-                result.type === 'listItem'
-                  ? { type: 'list', children: [result] }
-                  : {
-                      type: 'list',
-                      children: [{ type: 'listItem', ordered: false, checked: null, children: [result] }],
-                    },
-              ),
-            );
+            const p = child.children[0];
+            const queryResults = results.map((result) =>
+              result.type === 'listItem'
+                ? { type: 'list', children: [result] }
+                : {
+                    type: 'list',
+                    children: [{ type: 'listItem', ordered: false, checked: null, children: [result] }],
+                  },
+            ) as List[];
+            const existing = child.children.slice(1);
+            child.children = [p, ...queryResults, ...existing];
             return [child];
           }
           return [child];
